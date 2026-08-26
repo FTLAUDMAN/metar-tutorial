@@ -1,0 +1,22 @@
+# SHA-256 checksums for the METAR Flight Briefing Trainer package
+# Verify with:  shasum -a 256 -c CHECKSUMS.txt
+# Windows:      Get-FileHash -Algorithm SHA256 <file>
+# Build artifacts (tools/extracted.js, tools/render-out/) are excluded.
+274b7583740e2acee1dcdab79751ae38177b14e4838375839adbce361b836aea *HANDOFF.md
+da8f86e8986975fd35948abf0050dd3e4f7ac106a4ac3c006ba0dd971cc8685c *metar-tutorial_3.html
+c10884c602cff514548578cd48953f3edda4bd52d582df28cf8567c85b6388a9 *README.md
+62b49d853a2f2af3d7bc0727f2ae82683cf26becb7d0e2862af1eff356982ef2 *reference/metar-tutorial_2.html
+6c666f73450ec0627330e2a906c65fe9587c38e41f19fe267e01e1a31ab14174 *tools/browser-cloud-fuzz.js
+930f47e7ec419611c20a76ff52b85aafbc9a903587e16fef7a7ff824caab7a32 *tools/browser-exam-fuzz.js
+a87d4a7249cfb0f6796dd952fce42550747fa5be33738a0d59a74524e95bc0e6 *tools/browser-regression.js
+2178df447fb1c953a2f5bd15b8bc7063c99d712d41c874dbdc64e8e6f16bcd48 *tools/check.py
+3f0d31d35026fc78ae3100783073f1d0678fd3973e35e2e78640463f5163854c *tools/extract.py
+4c7dc23ae29d188f8e5c90e71b090588227bb32412370af2146d2ff9f18ea7a7 *tools/patchlib.py
+afc6731099e0aa1df1f111ca7439417fdcbdeadd2b3bdd63a277740e01cdbb37 *tools/README.md
+20108c1627187a4ccf122144c5badeffbc7c73616fac0ab1f529952f2fb9f51e *tools/refcheck.js
+ea69aee3148e3ae93341b4f19aa04f9aa80bbef8d6ae3f71e10faf8ca6cdd63c *tools/regress.js
+e07190c1594bcbbcc1b4325696e59f03e8a3e0ffdc6b6977a54ac4c104645284 *tools/regress_concepts.js
+dd06c4a8340e5b304d24c4b7461f75886dba1a3e15f5df4ff83c013642ddd013 *tools/regress_examgen.js
+e72392fc85df2070fbc8e635b8f3ae2ef47189d5cc69143be28aba668a6cbf1a *tools/regress_wc.js
+0e2ffea9993d500b1c28e53c7a3a4c28fe36840c9c7fd3be527a10bcad16358b *tools/render-check.js
+b82bd82af8e3b28f7a98ced4c2d5b3ae30f8653ca22065b1c6e09a8f37d05dea *tools/validate.js
