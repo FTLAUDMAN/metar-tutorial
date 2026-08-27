@@ -3,3 +3,5 @@ __pycache__/
 tools/render-out/
 tools/extracted.js
 .claude/
+worker/.wrangler/
+worker/node_modules/

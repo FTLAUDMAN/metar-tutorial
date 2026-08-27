@@ -218,9 +218,11 @@ regression sweep all-green (`runtimeErrors: []`, `printSurvivors:
 ['cheatsheet']`), cloud fuzz 2,000/2,000 with zero mismatches, exam fuzz
 2,000 items with zero mismatches.
 
-**Expected console noise:** two `aviationweather.gov` CORS errors per page load.
-That host sends no `Access-Control-Allow-Origin` header, so the offline fallback
-engaging is correct. Any *other* console error is a real bug.
+**Expected console noise:** when the page is opened from `file://`, two
+`aviationweather.gov` CORS errors still appear (the proxy does not help with
+`file://`). When served over HTTP with the Cloudflare Worker proxy active,
+the live fetch succeeds and no CORS errors appear. Any *other* console error
+is a real bug.
 
 `tools/README.md` documents all of this in more detail.
 
@@ -352,8 +354,10 @@ over the documentation.
 Nothing on the original list. What remains is judgement calls for the teacher
 rather than work items:
 
-- **The live METAR fetch still cannot work from the classroom.** CORS, and no
-  fix that keeps the single-file constraint. See §8.
+- **The live METAR fetch now works when served over HTTP** (localhost, GitHub
+  Pages, any web server) via a Cloudflare Worker proxy at
+  `https://metar-proxy.josiahlcarlson.workers.dev`. It still cannot work from
+  `file://` — browsers block all fetches from that protocol regardless of CORS.
 - **The rationale rubric is self-scored.** That is the honest design given no
   server and no grader, but it means the "Rationales written" tile measures
   effort, not quality. Treat it as a prompt for conversation, not as data.
@@ -402,13 +406,14 @@ is written to disk until `done()`.
 
 ## 8. Known limitations
 
-- **Live METAR fetch has never been observed succeeding.** aviationweather.gov
-  sends no `Access-Control-Allow-Origin` header, so the browser blocks it from
-  both `file://` and localhost. The failure path is thoroughly tested (graceful
-  message, offline practice METAR loads, no crash); the success path is
-  unchanged code from the original and has not been seen to return data. If a
-  student opens the file directly from disk — the likely classroom case — it
-  will always run in offline mode.
+- ~~Live METAR fetch has never been observed succeeding.~~ **Closed.** A
+  Cloudflare Worker proxy (`worker/metar-proxy.js`, deployed at
+  `https://metar-proxy.josiahlcarlson.workers.dev`) relays requests to
+  aviationweather.gov and adds the CORS header. The `METAR_PROXY` constant in
+  the tutorial points to it; if the proxy is absent or unreachable, the fetch
+  falls back to the direct URL (which will fail on CORS), and the offline
+  fallback engages as before. `file://` pages still cannot fetch regardless of
+  CORS headers — the `file://` error message remains accurate.
 - ~~Print output verified by CSS rule analysis, not a rendered PDF.~~
   **Closed.** `tools/render-check.js` now renders the page in print media and
   checks which elements still occupy space (only `cheatsheet`), and prints to

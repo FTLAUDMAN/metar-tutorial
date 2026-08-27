@@ -3183,12 +3183,24 @@ const POPULAR_STATIONS = [
 
 /* Shared fetch used by both the station lookup and the "today at your field"
    panel. Distinguishes "cannot reach the service" from "no report for that
-   station", because those need different advice. */
+   station", because those need different advice.
+
+   aviationweather.gov sends no CORS header, so direct browser fetches fail
+   from every origin except its own. The METAR_PROXY is a lightweight
+   Cloudflare Worker that relays the request and adds the header.
+   If no proxy is configured the fetch still tries the direct URL —
+   it will work on localhost during development if the browser happens
+   to allow it, and the offline fallback catches the rest. */
+const METAR_PROXY = 'https://metar-proxy.josiahlcarlson.workers.dev';
+
 async function fetchMetarText(code){
   const controller = new AbortController();
   const timeoutId = setTimeout(()=>controller.abort(), 8000);
+  const url = METAR_PROXY
+    ? `${METAR_PROXY}/?ids=${code}`
+    : `https://aviationweather.gov/api/data/metar?ids=${code}&format=raw`;
   try{
-    const resp = await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=raw`, {signal: controller.signal});
+    const resp = await fetch(url, {signal: controller.signal});
     clearTimeout(timeoutId);
     if (!resp.ok) throw {kind:'network'};
     const text = (await resp.text()).trim();
@@ -3210,7 +3222,7 @@ function liveErrorHtml(kind, code){
   const isFile = location.protocol === 'file:';
   return `<div class="fallback-box">
     <p><b>Could not reach the weather service.</b></p>
-    ${isFile ? `<p>This page is open directly from a file on disk, and browsers block network requests from <span class="mono">file://</span> pages. To use live lookup, put this file on a web server — or from a terminal in the same folder, run <span class="mono">python3 -m http.server</span> and open <span class="mono">localhost:8000</span>.</p>` : `<p>The school network may be blocking aviationweather.gov, or the service may be briefly down.</p>`}
+    ${isFile ? `<p>This page is open directly from a file on disk, and browsers block network requests from <span class="mono">file://</span> pages. To use live lookup, put this file on a web server — or from a terminal in the same folder, run <span class="mono">python3 -m http.server</span> and open <span class="mono">localhost:8000</span>.</p>` : `<p>The weather proxy may be temporarily down, or your network may be blocking it. If this keeps happening, tell your instructor.</p>`}
     <p>Either way you can still practise: get a current METAR from <a href="https://aviationweather.gov/data/metar/" target="_blank" rel="noopener">aviationweather.gov</a>, copy the text, and paste it into the <b>Decode</b> tab.</p>
   </div>`;
 }
