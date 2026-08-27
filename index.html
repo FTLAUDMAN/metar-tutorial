@@ -190,7 +190,15 @@ header.masthead .title-block p{margin:2px 0 0; color:var(--text-dim); font-size:
   display:flex; align-items:center; gap:12px; margin-bottom:26px;
   background:linear-gradient(90deg, var(--navy) 0%, transparent 100%);
   border-left:4px solid var(--gold); padding:10px 16px; border-radius:0 8px 8px 0;
+  cursor:pointer; user-select:none;
 }
+.section-head::after{
+  content:'\25BC'; font-size:.7rem; color:var(--gold); margin-left:auto;
+  transition:transform .25s ease;
+}
+.collapsed .section-head{margin-bottom:0;}
+.collapsed .section-head::after{transform:rotate(-90deg);}
+.collapsed .wrap>*:not(.section-head){display:none !important;}
 .section-head .num{
   font-family:var(--font-mono); color:var(--navy-deep); background:var(--gold-bright);
   font-weight:700; font-size:.8rem; padding:3px 9px; border-radius:6px; flex-shrink:0;
@@ -935,6 +943,16 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 .verify-prompt details ul{margin:6px 0 0; padding-left:18px; color:var(--text-dim); font-size:.84rem;}
 .verify-prompt details ul li{padding:2px 0;}
 
+.callout-more{margin-top:10px;}
+.callout-more summary{cursor:pointer; color:var(--gold-bright); font-weight:600; font-size:.92rem;}
+.callout-more[open] summary{margin-bottom:8px;}
+.callout-more p{margin:0 0 8px;}
+
+.hint-toggle{margin:6px 0 10px; font-size:.85rem;}
+.hint-toggle summary{cursor:pointer; color:var(--gold-bright); font-size:.82rem;}
+.hint-toggle[open] summary{margin-bottom:4px;}
+.hint-toggle p{margin:0; color:var(--text-dim);}
+
 .verify-box{
   border-left:3px solid var(--c-station); background:#00000030;
   border-radius:0 8px 8px 0; padding:12px 16px; margin:14px 0;
@@ -1042,10 +1060,11 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 
     <div class="callout">
       <b>What is a METAR?</b> METAR stands for <i>Meteorological Aerodrome Report</i> — a routine surface weather observation issued about once an hour at airports around the world. It packs wind, visibility, clouds, temperature, and pressure into one dense, coded line of text.
-      <br><br>
-      <b>Why does a drone pilot care?</b> Under <b>14 CFR Section 107.49</b>, the Remote Pilot in Command must assess <b>local weather conditions</b> before every flight and may not operate unless conditions allow safe flight. Under <b>14 CFR Section 107.51</b>, minimum flight visibility is <b>3 statute miles</b> and you must stay <b>500 ft below</b> and <b>2,000 ft horizontally</b> from any cloud. A METAR is the fastest standardized way to see what the atmosphere is doing before you drive out to the field.
-      <br><br>
-      <b>One thing to get straight now.</b> A METAR is <i>evidence</i>, not the legal standard. Section 107.51 is written around <b>flight visibility as observed from the location of your control station</b> — not the prevailing visibility a sensor recorded at an airport several miles away. Cloud heights in a METAR are <abbr title="Above Ground Level">AGL</abbr> <i>at the reporting field</i>, and the ground under your feet may sit at a different elevation. Read the METAR, then confirm it with your own eyes. The regulation asks what <i>you</i> can see.
+      <details class="callout-more">
+        <summary>Why should a drone pilot care?</summary>
+        <p>Under <b>14 CFR Section 107.49</b>, the Remote Pilot in Command must assess <b>local weather conditions</b> before every flight and may not operate unless conditions allow safe flight. Under <b>14 CFR Section 107.51</b>, minimum flight visibility is <b>3 statute miles</b> and you must stay <b>500 ft below</b> and <b>2,000 ft horizontally</b> from any cloud. A METAR is the fastest standardized way to see what the atmosphere is doing before you drive out to the field.</p>
+        <p><b>One thing to get straight now.</b> A METAR is <i>evidence</i>, not the legal standard. Section 107.51 is written around <b>flight visibility as observed from the location of your control station</b> — not the prevailing visibility a sensor recorded at an airport several miles away. Cloud heights in a METAR are <abbr title="Above Ground Level">AGL</abbr> <i>at the reporting field</i>, and the ground under your feet may sit at a different elevation. Read the METAR, then confirm it with your own eyes. The regulation asks what <i>you</i> can see.</p>
+      </details>
     </div>
 
     <p class="sub" style="margin-bottom:6px;"><b style="color:var(--gold-bright);">Example METAR</b> — from the FAA's Pilot's Handbook of Aeronautical Knowledge (FAA-H-8083-25B):</p>
@@ -1165,6 +1184,10 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <div class="section-check" id="checkZulu">
       <h4>Quick check</h4>
       <p class="sc-q">A METAR is stamped <span class="mono f-datetime">081453Z</span>. It is currently 0920 local time in Arkansas during Central Standard Time (UTC−6). How old is this observation?</p>
+      <details class="hint-toggle">
+        <summary>Need a hint?</summary>
+        <p>Start by converting local time to Zulu. CST is UTC−6, meaning Zulu time is 6 hours <i>ahead</i> of local time. What is 0920 + 6 hours?</p>
+      </details>
       <div class="pill-row">
         <button class="pill-btn" data-ans="wrong" data-fb="Watch the offset direction. CST is UTC−6, so local 0920 is 0920 + 6 = 1520Z. The METAR was issued at 1453Z, which is 27 minutes ago.">About 5 hours old</button>
         <button class="pill-btn" data-ans="right" data-fb="Correct. Local 0920 CST + 6 hours = 1520Z. The METAR was at 1453Z. That is 27 minutes old — still fresh, but it will be nearly 90 minutes old by the time the next routine observation comes.">About 27 minutes old</button>
@@ -5401,6 +5424,54 @@ const EXAM_GEN = {
       PROGRESS.updateDashboard();
       location.reload();
     }
+  });
+})();
+
+/* =========================================================================
+   COLLAPSIBLE SECTIONS
+   ========================================================================= */
+(function initCollapsible(){
+  const heads = document.querySelectorAll('.section-head');
+  const hashTarget = location.hash ? location.hash.slice(1) : null;
+
+  heads.forEach(head => {
+    const section = head.closest('section');
+    if (!section) return;
+    if (section.id !== hashTarget) section.classList.add('collapsed');
+
+    head.addEventListener('click', () => {
+      section.classList.toggle('collapsed');
+    });
+  });
+
+  function expandAndScroll(id){
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('collapsed');
+    requestAnimationFrame(() => el.scrollIntoView({behavior:'smooth'}));
+  }
+
+  document.querySelectorAll('#topnav a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      history.pushState(null, '', '#' + id);
+      expandAndScroll(id);
+    });
+  });
+
+  window.addEventListener('hashchange', () => {
+    if (location.hash) expandAndScroll(location.hash.slice(1));
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    if (a.closest('#topnav')) return;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const id = a.getAttribute('href').slice(1);
+      history.pushState(null, '', '#' + id);
+      expandAndScroll(id);
+    });
   });
 })();
 
