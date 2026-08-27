@@ -3779,7 +3779,12 @@ const GONOGO_SCENARIOS = [
 
   function render(){
     grid.innerHTML = '';
-    GONOGO_SCENARIOS.forEach((sc, idx)=> grid.appendChild(buildCard(sc, idx)));
+    const order = GONOGO_SCENARIOS.map((_, i) => i);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    order.forEach(idx => grid.appendChild(buildCard(GONOGO_SCENARIOS[idx], idx)));
   }
 
   document.getElementById('gngCopyBtn').addEventListener('click', e=>{
@@ -5526,6 +5531,15 @@ const EXAM_GEN = {
      is its own region, so nothing gets announced twice. */
   document.querySelectorAll('.sc-feedback').forEach(fb => fb.setAttribute('aria-live', 'polite'));
 
+  document.querySelectorAll('.section-check .pill-row').forEach(row => {
+    const btns = Array.from(row.children);
+    for (let i = btns.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      row.appendChild(btns[j]);
+      btns[j] = btns[i];
+    }
+  });
+
   document.querySelectorAll('.section-check').forEach(block => {
     block.querySelectorAll('.pill-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -5570,14 +5584,20 @@ const EXAM_GEN = {
      labels:['Report Type','Station','Date/Time','Wind','Visibility','Weather','Sky','Temp/Dew','Altimeter','Remarks']},
   ];
 
+  const setOrder = FIELD_SETS.map((_, i) => i);
+  for (let i = setOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [setOrder[i], setOrder[j]] = [setOrder[j], setOrder[i]];
+  }
+
   const tray = document.getElementById('orderTray');
   const slot = document.getElementById('orderSlot');
   const fbEl = document.getElementById('orderFeedback');
   let currentSet = 0;
 
   function loadSet(idx){
-    currentSet = idx % FIELD_SETS.length;
-    const set = FIELD_SETS[currentSet];
+    currentSet = idx % setOrder.length;
+    const set = FIELD_SETS[setOrder[currentSet]];
     const shuffled = set.fields.map((f,i) => ({text:f, label:set.labels[i], correctIdx:i}));
     /* Shuffle */
     for (let i = shuffled.length - 1; i > 0; i--){
@@ -5789,6 +5809,12 @@ const EXAM_GEN = {
     }
   ];
 
+  const pairOrder = PAIRS.map((_, i) => i);
+  for (let i = pairOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pairOrder[i], pairOrder[j]] = [pairOrder[j], pairOrder[i]];
+  }
+
   let currentPair = 0;
   const container = document.getElementById('wcCards');
   const nextBtn = document.getElementById('wcNextBtn');
@@ -5802,7 +5828,7 @@ const EXAM_GEN = {
 
   function renderPair(idx){
     currentPair = idx;
-    const pair = PAIRS[idx % PAIRS.length];
+    const pair = PAIRS[pairOrder[idx % pairOrder.length]];
     const {fields: fBefore} = parseMETAR(pair.before);
     const {fields: fAfter} = parseMETAR(pair.after);
 
