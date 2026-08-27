@@ -23,7 +23,7 @@
   --border-strong:#c8a84e99;
 
   /* Field hues. Chosen for separation on the navy panel; every field also
-     carries a distinct underline style so colour is never the only signal. */
+     carries a distinct underline style so color is never the only signal. */
   --c-type:#cfd8dc;
   --c-station:#22d3ee;
   --c-datetime:#c4a2ff;
@@ -50,7 +50,7 @@
   --font-sans:'Inter', sans-serif;
 }
 
-/* Colour-blind-safe mode. Twelve fields cannot all be given distinguishable
+/* Color-blind-safe mode. Twelve fields cannot all be given distinguishable
    hues under deuteranopia, so this palette uses an Okabe-Ito-derived set and
    leans on the underline styles below to separate fields that share a hue. */
 body.cb-safe{
@@ -237,7 +237,7 @@ header.masthead .title-block p{margin:2px 0 0; color:var(--text-dim); font-size:
   background:#ffffff22; box-shadow:0 0 12px currentColor;
   border-bottom:3px var(--tok-line, solid) currentColor;
 }
-/* Exam mode: strip the colour scaffold and make students read the raw code. */
+/* Exam mode: strip the color scaffold and make students read the raw code. */
 .no-color .metar-token{color:var(--text) !important;}
 .no-color .metar-token.active{box-shadow:0 0 12px var(--gold-bright);}
 
@@ -489,7 +489,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 .pill-btn.wrong::after{content:' ✕'; font-weight:700;}
 .q-label{font-size:.82rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin:14px 0 0;}
 
-/* Colour-blind toggle in the nav */
+/* Color-blind toggle in the nav */
 .nav-toggle{
   margin-left:auto; display:flex; align-items:center; gap:7px; flex-shrink:0;
   font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--text-dim);
@@ -697,7 +697,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
   #cheatsheet .section-head h2, #cheatsheet h3, #cheatsheet b, #cheatsheet small,
   #cheatsheet td, #cheatsheet th, #cheatsheet li, #cheatsheet p{color:#111 !important;}
   #cheatsheet td, #cheatsheet th, #cheatsheet li{border-color:#bbb !important;}
-  /* The colour coding is the point of the study card, so keep it — but darkened
+  /* The color coding is the point of the study card, so keep it — but darkened
      for white paper rather than flattened to black. */
   #cheatsheet .f-reporttype{color:#55636b !important;}
   #cheatsheet .f-station{color:#0e7490 !important;}
@@ -966,7 +966,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <a href="#gonogo">Go / No-Go</a>
     <a href="#exam">Exam Mode</a>
     <a href="#cheatsheet">Cheat Sheet</a>
-    <button class="nav-toggle" id="cbToggle" aria-pressed="false" title="Switch to a colour-blind-safe palette">Colour-safe</button>
+    <button class="nav-toggle" id="cbToggle" aria-pressed="false" title="Switch to a color-blind-safe palette">Color-safe</button>
   </div>
 </nav>
 
@@ -1018,9 +1018,9 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
       <p id="dashConfTip" style="color:var(--text-dim); margin:8px 0 0; font-size:.82rem;"></p>
     </div>
     <div id="dashNext" class="dash-next" style="display:none;">
-      <h4>What to practise next</h4>
+      <h4>What to practice next</h4>
       <p id="dashNextWhy"></p>
-      <a class="btn primary" id="dashNextBtn" href="#exam">Practise</a>
+      <a class="btn primary" id="dashNextBtn" href="#exam">Practice</a>
       <p id="dashNextSub" class="dn-sub"></p>
     </div>
     <div class="dash-actions" id="dashActions">
@@ -1075,7 +1075,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <section id="anatomy">
   <div class="wrap">
     <div class="section-head"><span class="num">02</span><h2>Anatomy of a METAR</h2></div>
-    <p class="section-intro">Every METAR follows the same field order. Click any piece of the code below — or tab to it and press Enter — to see what it means. Colours and underline styles stay consistent everywhere in this tutorial, and <b>every METAR on this page is clickable</b>, not just this one.</p>
+    <p class="section-intro">Every METAR follows the same field order. Click any piece of the code below — or tab to it and press Enter — to see what it means. Colors and underline styles stay consistent everywhere in this tutorial, and <b>every METAR on this page is clickable</b>, not just this one.</p>
 
     <div class="legend" id="legendChips"></div>
     <div class="decoder-box" id="anatomyMetar"></div>
@@ -1227,7 +1227,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <section id="walkthrough">
   <div class="wrap">
     <div class="section-head"><span class="num">06</span><h2>Guided Walkthrough Examples</h2></div>
-    <p class="section-intro">Five METARs, and the help drops away as you go. The first is fully worked. By the last one you get the raw code, no colour, and no narration — which is what a real preflight looks like.</p>
+    <p class="section-intro">Five METARs, and the help drops away as you go. The first is fully worked. By the last one you get the raw code, no color, and no narration — which is what a real preflight looks like.</p>
 
     <div class="walk-progress" id="walkDots"></div>
     <div id="walkCards"></div>
@@ -1471,11 +1471,11 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <section id="exam">
   <div class="wrap">
     <div class="section-head"><span class="num">11</span><h2>Exam Mode</h2></div>
-    <p class="section-intro">Ten questions, no colour coding and no hints. Several of them are built fresh from a randomly generated report every time you run it, so the exam cannot be memorised — the only way through is to read the METAR. At the end you get a breakdown by field, so you can see whether it is ceilings, visibility, or time conversion that keeps catching you.</p>
+    <p class="section-intro">Ten questions, no color coding and no hints. Several of them are built fresh from a randomly generated report every time you run it, so the exam cannot be memorized — the only way through is to read the METAR. At the end you get a breakdown by field, so you can see whether it is ceilings, visibility, or time conversion that keeps catching you.</p>
 
     <div class="exam-shell" id="examShell">
       <div id="examStart">
-        <p style="margin-top:0;">You will see raw METARs with the colours switched off. Answer honestly and do not scroll up — a wrong answer here is worth more than a right one you looked up.</p>
+        <p style="margin-top:0;">You will see raw METARs with the colors switched off. Answer honestly and do not scroll up — a wrong answer here is worth more than a right one you looked up.</p>
         <p style="font-size:.88rem; color:var(--text-dim); margin:8px 0 14px;">Choose a mode:</p>
         <div class="btn-row">
           <button class="btn primary" id="examStartPractice">Practice Mode</button>
@@ -1506,7 +1506,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <section id="cheatsheet">
   <div class="wrap">
     <div class="section-head"><span class="num">12</span><h2>Quick Reference Cheat Sheet</h2></div>
-    <p class="section-intro">Print this page (Ctrl/Cmd+P) and only this section comes out — colour coding intact — as a study card for your kneeboard.</p>
+    <p class="section-intro">Print this page (Ctrl/Cmd+P) and only this section comes out — color coding intact — as a study card for your kneeboard.</p>
 
     <div class="cheat-grid">
       <div class="card">
@@ -1619,7 +1619,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <script>
 /* =========================================================================
    CONCEPTS — the things this page claims to teach, and where each one is
-   practised.
+   practiced.
 
    The exam already tracks per-category accuracy under these exact names
    (EXAM_GEN and EXAM_BANK both key off them), so this table adds only the
@@ -1724,7 +1724,7 @@ const PROGRESS = (function(){
     return out;
   }
 
-  /* Called by every module that practises a concept. ratio is 0..1 over the
+  /* Called by every module that practices a concept. ratio is 0..1 over the
      items just answered. */
   function recordPractice(conceptId, ratio){
     if (!ok || !conceptId) return;
@@ -1744,7 +1744,7 @@ const PROGRESS = (function(){
        1. a concept that is both weak and overdue — the clearest case
        2. the weakest concept, if anything is below the accuracy floor
        3. the most overdue concept
-       4. a concept never practised at all
+       4. a concept never practiced at all
      Returns null when there is nothing worth nagging about, which is a real
      answer and must stay one: a dashboard that always demands something
      teaches students to ignore it. */
@@ -1781,7 +1781,7 @@ const PROGRESS = (function(){
     const weakAndDue = weak.find(r => r.overdue !== null && r.overdue >= 0);
     if (weakAndDue) return {
       row: weakAndDue, kind: 'weak-and-due',
-      why: `You are at ${Math.round(weakAndDue.acc * 100)}% on ${weakAndDue.c.label}, and it has been ${weakAndDue.since} day${weakAndDue.since === 1 ? '' : 's'} since you practised it.`
+      why: `You are at ${Math.round(weakAndDue.acc * 100)}% on ${weakAndDue.c.label}, and it has been ${weakAndDue.since} day${weakAndDue.since === 1 ? '' : 's'} since you practiced it.`
     };
     if (weak.length) return {
       row: weak[0], kind: 'weak',
@@ -1789,12 +1789,12 @@ const PROGRESS = (function(){
     };
     if (due.length) return {
       row: due[0], kind: 'due',
-      why: `It has been ${due[0].since} day${due[0].since === 1 ? '' : 's'} since you practised ${due[0].c.label}. Spacing it out is what makes it stick — but only if you come back.`
+      why: `It has been ${due[0].since} day${due[0].since === 1 ? '' : 's'} since you practiced ${due[0].c.label}. Spacing it out is what makes it stick — but only if you come back.`
     };
     const unseen = rows.filter(r => !r.seen);
     if (unseen.length) return {
       row: unseen[0], kind: 'new',
-      why: `You have not practised ${unseen[0].c.label} yet.`
+      why: `You have not practiced ${unseen[0].c.label} yet.`
     };
     return null;
   }
@@ -1813,7 +1813,7 @@ const PROGRESS = (function(){
     const btn = el('dashNextBtn');
     if (btn){
       btn.setAttribute('href', rec.row.c.href);
-      btn.textContent = 'Practise ' + rec.row.c.label + ' \u2192';
+      btn.textContent = 'Practice ' + rec.row.c.label + ' \u2192';
     }
     const sub = el('dashNextSub');
     if (sub) sub.textContent = 'Takes you to the ' + rec.row.c.cta + '.';
@@ -2414,22 +2414,22 @@ function parseMETAR(rawInput){
          halt the parse and swallow the rest of the report. */
       let raw = tokens[i];
       const mm = raw.match(/^(\d{4})(NDV|[NSEW]{1,2})?$/);
-      const metres = parseInt(mm[1], 10);
-      const unlimited = metres >= 9999;
-      const miles = unlimited ? 6.21 : metres / 1609.344;
+      const meters = parseInt(mm[1], 10);
+      const unlimited = meters >= 9999;
+      const miles = unlimited ? 6.21 : meters / 1609.344;
       meta.visibilityMiles = Math.round(miles * 100) / 100;
       meta.visibilityOp = unlimited ? 'greater than' : '';
       i++;
       /* An optional directional minimum may follow, e.g. "9999 1200NW". */
       if (tokens[i] && /^\d{4}[NSEW]{1,2}$/.test(tokens[i])){ raw += ' ' + tokens[i]; i++; }
-      const metresText = unlimited
+      const metersText = unlimited
         ? '<b>9999</b> is the ICAO code for <b>10 km or more</b>'
-        : `<b>${mm[1]}</b> means <b>${metres.toLocaleString()} metres</b>`;
+        : `<b>${mm[1]}</b> means <b>${meters.toLocaleString()} meters</b>`;
       fields.push({type:'visibility', raw, label:'Visibility (metric)',
-        html:`<p><b>${raw}</b> — visibility in <b>metres</b>, the ICAO format used outside North America. ${metresText}, which is about <b>${meta.visibilityMiles} statute miles</b>.</p>` +
+        html:`<p><b>${raw}</b> — visibility in <b>meters</b>, the ICAO format used outside North America. ${metersText}, which is about <b>${meta.visibilityMiles} statute miles</b>.</p>` +
           (mm[2] === 'NDV' ? '<p><span class="mono">NDV</span> means "no directional variation" — the sensor cannot report direction-dependent visibility.</p>'
            : mm[2] ? `<p><span class="mono">${mm[2]}</span> gives the direction of the reported minimum visibility.</p>` : '') +
-          `<p class="tip">Part 107 minimums are written in <b>statute miles</b>, so a metric report has to be converted before you can compare it to the 3 SM figure. Divide metres by 1,609 to get statute miles.</p>` +
+          `<p class="tip">Part 107 minimums are written in <b>statute miles</b>, so a metric report has to be converted before you can compare it to the 3 SM figure. Divide meters by 1,609 to get statute miles.</p>` +
           VIS_TIP(meta.visibilityMiles, meta.visibilityOp)});
     }
   }
@@ -2472,7 +2472,7 @@ function parseMETAR(rawInput){
         (meta.tsVicinity && !meta.tsOverhead
           ? '<b>VC</b> means the thunderstorm is <b>in the vicinity</b> — roughly 5 to 10 SM from the station, not over it. That is not reassurance: storms move, often faster than you can recover an aircraft, and the gust front arrives well ahead of the rain. Treat it as an operational NO-GO and find out which way the cell is tracking. '
           : '') +
-        'Part 107 sets <b>no numerical thunderstorm prohibition</b> — a thunderstorm is an <b>operational hazard</b>, not a listed minimum. But § 107.49 requires you to assess <b>local weather conditions</b> and § 107.19 makes you responsible for the safety of the operation. Lightning, wind shear, downbursts and hail are why every experienced pilot treats a thunderstorm as an operational NO-GO. This is judgement, and the judgement is not close.</p>' : '');
+        'Part 107 sets <b>no numerical thunderstorm prohibition</b> — a thunderstorm is an <b>operational hazard</b>, not a listed minimum. But § 107.49 requires you to assess <b>local weather conditions</b> and § 107.19 makes you responsible for the safety of the operation. Lightning, wind shear, downbursts and hail are why every experienced pilot treats a thunderstorm as an operational NO-GO. This is judgment, and the judgment is not close.</p>' : '');
     fields.push({type:'weather', raw, label:'Weather Phenomena', html, sub:wxGroup});
   }
 
@@ -2727,14 +2727,14 @@ const WALKTHROUGH_EXAMPLES = [
     verdict:'nogo',
     scaffold:{auto:false, predict:true, color:true, explain:true},
     scaffoldNote:'Predict each field before you reveal it',
-    summary:'<b>Reported minimums: NOT MET</b> — 2 SM is below the § 107.51(c) minimum of 3 SM, and that is the <i>only</i> numerical failure here. Note what does not fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers. <b>Separately, this is an operational NO-GO</b> by every measure: heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), cumulonimbus at 1,000 ft with active convection, and pressure falling rapidly. Part 107 sets no maximum wind speed and names no thunderstorm prohibition — those are operational hazards rather than numerical minimums, and the judgement is not close.'
+    summary:'<b>Reported minimums: NOT MET</b> — 2 SM is below the § 107.51(c) minimum of 3 SM, and that is the <i>only</i> numerical failure here. Note what does not fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers. <b>Separately, this is an operational NO-GO</b> by every measure: heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), cumulonimbus at 1,000 ft with active convection, and pressure falling rapidly. Part 107 sets no maximum wind speed and names no thunderstorm prohibition — those are operational hazards rather than numerical minimums, and the judgment is not close.'
   },
   {
     title:'The Ceiling Question',
     metar:'METAR KDEN 151253Z 35010KT 5SM BR OVC009 08/06 A2980 RMK AO2',
     verdict:'caution',
     scaffold:{auto:false, predict:false, color:false, explain:true},
-    scaffoldNote:'Colour coding off — read the raw code',
+    scaffoldNote:'Color coding off — read the raw code',
     summary:'<b>Reported minimums: MET</b> — 5 SM clears the visibility minimum, and the 900-ft overcast gives a conservative under-cloud planning limit of exactly <b>400 ft AGL</b> if that layer represents your operating site, which happens to be the Part 107 cap anyway. The numbers pass with precisely zero margin. <b>GO with restrictions</b> at best: look at the temp/dew spread — 2 °C, with mist already present. This sky is one degree of cooling away from becoming fog, and you still owe every cloud 2,000 ft of horizontal clearance. A cautious pilot waits.'
   },
   {
@@ -2742,7 +2742,7 @@ const WALKTHROUGH_EXAMPLES = [
     metar:'SPECI KVBT 241912Z AUTO 09006KT 8SM SCT007 BKN060 26/21 A3001 RMK AO2',
     verdict:'caution',
     scaffold:{auto:false, predict:false, color:false, explain:false, coldRead:true},
-    scaffoldNote:'No colour, no narration — you are on your own',
+    scaffoldNote:'No color, no narration — you are on your own',
     summary:'This one catches almost everybody. Visibility is 8 SM and the <i>ceiling</i> — the lowest broken or overcast layer — is BKN060 at 6,000 ft, which looks wide open. But § 107.51(d) says 500 ft below <b>any</b> cloud, and there is a scattered layer at <b>700 ft</b>. <b>Reported minimums: MET</b>, but if that scattered layer is over your operating area the conservative under-cloud planning limit is <b>200 ft AGL</b> — and you must also stay 2,000 ft horizontally from every one of those puffs, which on a day like this means repositioning constantly. <b>GO with restrictions</b>, and genuinely awkward to fly. Also note the report type: <b>SPECI</b>, not METAR — something changed enough between hourly observations to warrant a special report, so find out what.'
   }
 ];
@@ -2758,7 +2758,7 @@ function buildWalkCard(example, index){
       <h3 style="color:var(--gold-bright); margin-bottom:4px;">${index+1}. ${example.title}<span class="scaffold-tag">${example.scaffoldNote}</span></h3>
       ${sc.coldRead
         /* The final example is the point of the whole section: no tokens, no
-           field colours, no underline patterns, no titles, no hover state and
+           field colors, no underline patterns, no titles, no hover state and
            nothing to click. Just the report, exactly as it arrived. */
         ? `<div class="metar-display no-color">${escapeHtml(example.metar)}</div>`
         : `<div class="metar-display">${renderMetarSpans(fields)}</div>`}
@@ -2903,7 +2903,7 @@ function renderDecodedFields(fields){
 /* Screens the reported numbers, then lists — separately, and labelled as such —
    the operational hazards and classroom limits that are NOT numerical minimums.
    The three are kept visually apart because students routinely collapse them
-   into a single "is it legal" judgement. */
+   into a single "is it legal" judgment. */
 function part107Box(meta){
   if (meta.visibilityMiles === null && meta.lowestLayerFt === null) return '';
   const rm = reportedMinimumsStatus(meta);
@@ -3223,7 +3223,7 @@ function liveErrorHtml(kind, code){
   return `<div class="fallback-box">
     <p><b>Could not reach the weather service.</b></p>
     ${isFile ? `<p>This page is open directly from a file on disk, and browsers block network requests from <span class="mono">file://</span> pages. To use live lookup, put this file on a web server — or from a terminal in the same folder, run <span class="mono">python3 -m http.server</span> and open <span class="mono">localhost:8000</span>.</p>` : `<p>The weather proxy may be temporarily down, or your network may be blocking it. If this keeps happening, tell your instructor.</p>`}
-    <p>Either way you can still practise: get a current METAR from <a href="https://aviationweather.gov/data/metar/" target="_blank" rel="noopener">aviationweather.gov</a>, copy the text, and paste it into the <b>Decode</b> tab.</p>
+    <p>Either way you can still practice: get a current METAR from <a href="https://aviationweather.gov/data/metar/" target="_blank" rel="noopener">aviationweather.gov</a>, copy the text, and paste it into the <b>Decode</b> tab.</p>
   </div>`;
 }
 
@@ -3387,7 +3387,7 @@ const GONOGO_SCENARIOS = [
     factors:['visibility','weather','wind'], drivers:['regulation','hazard'], mitigations:['cancel','delay'],
     sop:['wind','gust','precip'],
     verifyFocus:'where that cell actually is and which way it is tracking — a storm "at the airport" can be over you in fifteen minutes, and the gust front arrives ahead of the rain',
-    opMisconception:'Anything other than NO-GO means a thunderstorm did not settle it for you. Part 107 names no numerical thunderstorm prohibition, which is exactly why this one is judgement rather than arithmetic — and the judgement is not close. Lightning, gust fronts, hail and wind shear are not hazards you manage with a shorter flight or a smaller aircraft.',
+    opMisconception:'Anything other than NO-GO means a thunderstorm did not settle it for you. Part 107 names no numerical thunderstorm prohibition, which is exactly why this one is judgment rather than arithmetic — and the judgment is not close. Lightning, gust fronts, hail and wind shear are not hazards you manage with a shorter flight or a smaller aircraft.',
     misconception:'Reading this as meeting the reported minimums means you missed the 2 SM visibility. When thunderstorms dominate the picture it is easy to fixate on wind and weather and skip straight past the basic visibility number.',
     mission:'An insurance adjuster needs roof-damage photos from yesterday\'s hailstorm. The homeowner\'s claim can\'t proceed without them, and the adjuster is leaving town tomorrow.',
     explain:'<b>Reported minimums: NOT MET</b> — visibility is 2 SM, below the 3 SM minimum. That is the numerical failure, and it is the only one. Note what does <i>not</i> fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers here. <b>Separately, this is an unquestionable operational NO-GO</b> — heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), and cumulonimbus with active convection. Part 107 names no maximum wind and no thunderstorm prohibition; § 107.49 requires you to assess local weather conditions and § 107.19 makes you responsible for the safety of the operation. The insurance deadline does not move the atmosphere. Cancel today\'s attempt and rebook for tomorrow morning.'
@@ -3710,7 +3710,7 @@ const GONOGO_SCENARIOS = [
         }
 
         /* Corrections are keyed to WHICH call went wrong. A student who read
-           the numbers correctly and then blew the operational judgement was
+           the numbers correctly and then blew the operational judgment was
            previously told nothing at all — that half of the trainer is the
            half the regulation cannot answer for them. */
         const corrections = [];
@@ -3935,7 +3935,7 @@ const GONOGO_SCENARIOS = [
    SECTION 5: CLOUD CLEARANCE DRILL
 
    Generative, on the same pattern as the Zulu drill: there is no item bank to
-   memorise, so the only way through is to actually do the arithmetic. Every
+   memorize, so the only way through is to actually do the arithmetic. Every
    question is built straight from 14 CFR § 107.51:
 
      (b)    400 ft AGL ceiling. The structure exception is deliberately kept
@@ -4187,7 +4187,7 @@ const GONOGO_SCENARIOS = [
 /* =========================================================================
    FREE-RESPONSE RATIONALE
 
-   The only place on the page where a student produces rather than recognises.
+   The only place on the page where a student produces rather than recognizes.
 
    Two things it deliberately does not do. It does not grade the prose: a
    keyword scan cannot tell a good rationale from one that name-drops the right
@@ -4342,12 +4342,12 @@ const EXAM_BANK = [
 
   {cat:'Visibility', metar:null,
    q:'Under § 107.51(c), the 3-mile minimum applies to visibility measured from where?',
-   choices:['The nearest reporting airport','The location of your control station','The aircraft itself','The centre of your operating area'], answer:1,
+   choices:['The nearest reporting airport','The location of your control station','The aircraft itself','The center of your operating area'], answer:1,
    explain:'The rule is written around <b>flight visibility as observed from the location of the control station</b>. A METAR is excellent evidence, but it describes an airport that may be many miles away.'},
 
   {cat:'Visibility', metar:null,
    q:'A METAR reports visibility as 4SM. What unit is that?',
-   choices:['4 nautical miles','4 statute miles','4 kilometres','4,000 metres'], answer:1,
+   choices:['4 nautical miles','4 statute miles','4 kilometers','4,000 meters'], answer:1,
    explain:'METAR visibility in the United States is in statute miles, and Part 107 minimums are written in statute miles too. Nautical miles are used for distance and speed, not visibility.'},
 
   {cat:'Wind', metar:'METAR KXNA 141853Z 31018G27KT 10SM SKC 19/04 A3015 RMK AO2',
@@ -4900,7 +4900,7 @@ const EXAM_GEN = {
          mistake of the two. */
       const wrongs = [
         cap(v.text.replace(/statute mile/, 'nautical mile')),
-        cap(v.text.replace(/statute mile(s?)/, 'kilometre$1')),
+        cap(v.text.replace(/statute mile(s?)/, 'kilometer$1')),
         cap(v.text) + ' of flight visibility at your control station'
       ];
       let explain = `${g.mono(v.code)} is the <b>prevailing visibility</b> group: ${v.text}. US reports give it in <b>statute miles</b>, abbreviated SM.`;
@@ -5134,7 +5134,7 @@ const EXAM_GEN = {
 
     /* Generation runs inside a try: a template throwing must cost the student
        four questions, not the whole exam. The written bank always covers the
-       full length, so the draw degrades to the old behaviour. */
+       full length, so the draw degrades to the old behavior. */
     let generated = [];
     try {
       generated = EXAM_GEN.batch(GENERATED, catWeights);
@@ -5257,10 +5257,10 @@ const EXAM_GEN = {
 
     const rows = Object.entries(byCat).map(([cat,v])=>{
       const p = v.right / v.total * 100;
-      const colour = p === 100 ? '#5ff29b' : p >= 50 ? 'var(--gold)' : '#ff8a8a';
+      const color = p === 100 ? '#5ff29b' : p >= 50 ? 'var(--gold)' : '#ff8a8a';
       return `<div class="result-row">
         <div class="rr-name">${cat}</div>
-        <div class="rr-bar"><span style="width:${p}%; background:${colour};"></span></div>
+        <div class="rr-bar"><span style="width:${p}%; background:${color};"></span></div>
         <div class="rr-num">${v.right}/${v.total}</div>
       </div>`;
     }).join('');
@@ -5328,14 +5328,14 @@ const EXAM_GEN = {
 })();
 
 /* =========================================================================
-   COLOUR-BLIND-SAFE PALETTE TOGGLE
+   COLOR-BLIND-SAFE PALETTE TOGGLE
    ========================================================================= */
 (function initCbToggle(){
   const btn = document.getElementById('cbToggle');
   btn.addEventListener('click', ()=>{
     const on = document.body.classList.toggle('cb-safe');
     btn.setAttribute('aria-pressed', String(on));
-    btn.textContent = on ? 'Standard colours' : 'Colour-safe';
+    btn.textContent = on ? 'Standard colors' : 'Color-safe';
   });
 })();
 
