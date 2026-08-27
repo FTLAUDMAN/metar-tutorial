@@ -90,7 +90,8 @@ code, .mono{font-family:var(--font-mono);}
 :focus-visible{outline:2px solid var(--gold-bright); outline-offset:2px; border-radius:4px;}
 
 .wrap{max-width:1150px;margin:0 auto;padding:0 20px;}
-section{padding:56px 0;position:relative;}
+section{padding:56px 0;position:relative;scroll-margin-top:72px;}
+.walk-card{scroll-margin-top:80px;}
 section + section{border-top:1px solid var(--border);}
 
 /* ===================== NAV ===================== */
@@ -110,6 +111,7 @@ section + section{border-top:1px solid var(--border);}
   transition:color .2s, border-color .2s; white-space:nowrap;
 }
 #topnav a:hover, #topnav a:focus-visible{color:var(--gold-bright); border-color:var(--gold);}
+#topnav a.active{color:var(--gold-bright); border-color:var(--gold);}
 
 /* ===================== HEADER / HERO ===================== */
 header.masthead{
@@ -827,6 +829,8 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 .section-check .sc-feedback.show{display:block;}
 .section-check .sc-feedback.correct{background:#1b3a2a; border:1px solid #5ff29b44;}
 .section-check .sc-feedback.wrong{background:#3a1b1b; border:1px solid #ff8a8a44;}
+.section-check .sc-retry{margin-top:8px; font-size:.82rem; cursor:pointer; color:var(--gold-bright); background:none; border:1px solid var(--gold); border-radius:6px; padding:4px 12px;}
+.section-check .sc-retry:hover{background:var(--gold); color:var(--navy-deep);}
 
 /* ===================== WHAT CHANGED ===================== */
 .wc-pair{
@@ -1039,9 +1043,9 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <div class="callout">
       <b>What is a METAR?</b> METAR stands for <i>Meteorological Aerodrome Report</i> — a routine surface weather observation issued about once an hour at airports around the world. It packs wind, visibility, clouds, temperature, and pressure into one dense, coded line of text.
       <br><br>
-      <b>Why does a drone pilot care?</b> Under <b>14 CFR § 107.49</b>, the Remote Pilot in Command must assess <b>local weather conditions</b> before every flight and may not operate unless conditions allow safe flight. Under <b>14 CFR § 107.51</b>, minimum flight visibility is <b>3 statute miles</b> and you must stay <b>500 ft below</b> and <b>2,000 ft horizontally</b> from any cloud. A METAR is the fastest standardized way to see what the atmosphere is doing before you drive out to the field.
+      <b>Why does a drone pilot care?</b> Under <b>14 CFR Section 107.49</b>, the Remote Pilot in Command must assess <b>local weather conditions</b> before every flight and may not operate unless conditions allow safe flight. Under <b>14 CFR Section 107.51</b>, minimum flight visibility is <b>3 statute miles</b> and you must stay <b>500 ft below</b> and <b>2,000 ft horizontally</b> from any cloud. A METAR is the fastest standardized way to see what the atmosphere is doing before you drive out to the field.
       <br><br>
-      <b>One thing to get straight now.</b> A METAR is <i>evidence</i>, not the legal standard. § 107.51 is written around <b>flight visibility as observed from the location of your control station</b> — not the prevailing visibility a sensor recorded at an airport several miles away. Cloud heights in a METAR are <abbr title="Above Ground Level">AGL</abbr> <i>at the reporting field</i>, and the ground under your feet may sit at a different elevation. Read the METAR, then confirm it with your own eyes. The regulation asks what <i>you</i> can see.
+      <b>One thing to get straight now.</b> A METAR is <i>evidence</i>, not the legal standard. Section 107.51 is written around <b>flight visibility as observed from the location of your control station</b> — not the prevailing visibility a sensor recorded at an airport several miles away. Cloud heights in a METAR are <abbr title="Above Ground Level">AGL</abbr> <i>at the reporting field</i>, and the ground under your feet may sit at a different elevation. Read the METAR, then confirm it with your own eyes. The regulation asks what <i>you</i> can see.
     </div>
 
     <p class="sub" style="margin-bottom:6px;"><b style="color:var(--gold-bright);">Example METAR</b> — from the FAA's Pilot's Handbook of Aeronautical Knowledge (FAA-H-8083-25B):</p>
@@ -1088,9 +1092,9 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
       <h4>Quick check</h4>
       <p class="sc-q">A METAR reports BKN035 and SCT008. If both layers are over your operating area, which one sets your under-cloud altitude limit?</p>
       <div class="pill-row">
-        <button class="pill-btn" data-ans="wrong" data-fb="Not quite. BKN035 is the ceiling, but § 107.51(d) says 500 ft below <b>any</b> cloud — and SCT008 at 800 ft is lower. That scattered layer limits you to 300 ft AGL if it is over your site.">BKN035 — it's the ceiling</button>
+        <button class="pill-btn" data-ans="wrong" data-fb="Not quite. BKN035 is the ceiling, but Section 107.51(d) says 500 ft below <b>any</b> cloud — and SCT008 at 800 ft is lower. That scattered layer limits you to 300 ft AGL if it is over your site.">BKN035 — it's the ceiling</button>
         <button class="pill-btn" data-ans="right" data-fb="Right. The ceiling is BKN035 at 3,500 ft, but cloud clearance applies to <b>every</b> layer. SCT008 at 800 ft minus 500 ft gives a 300 ft under-cloud limit, which is lower than the usual 400 ft cap. The scattered layer therefore governs. And it all assumes the layer is really over your site.">SCT008 — clearance applies to any cloud</button>
-        <button class="pill-btn" data-ans="wrong" data-fb="Both layers are real clouds. § 107.51(d) requires 500 ft below <b>any</b> cloud, so SCT008 at 800 ft gives a 300 ft under-cloud limit if that layer is over your site.">Neither — only OVC is a real limit</button>
+        <button class="pill-btn" data-ans="wrong" data-fb="Both layers are real clouds. Section 107.51(d) requires 500 ft below <b>any</b> cloud, so SCT008 at 800 ft gives a 300 ft under-cloud limit if that layer is over your site.">Neither — only OVC is a real limit</button>
       </div>
       <div class="sc-feedback" id="checkAnatomyFb"></div>
     </div>
@@ -1180,18 +1184,18 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <div class="zulu-grid">
       <div class="card glow">
         <h3 style="color:var(--gold-bright); margin-bottom:2px;">The two clearances</h3>
-        <p style="font-size:.86rem; color:var(--text-dim); margin:0 0 12px;">&sect; 107.51(d) sets both cloud clearances; &sect; 107.51(b) sets the altitude cap. All three apply at once.</p>
+        <p style="font-size:.86rem; color:var(--text-dim); margin:0 0 12px;">Section 107.51(d) sets both cloud clearances; Section 107.51(b) sets the altitude cap. All three apply at once.</p>
         <ul class="p107-mins" style="margin-bottom:14px;">
           <li><span>Below <i>any</i> cloud</span><b>500 ft</b></li>
           <li><span>Horizontally from <i>any</i> cloud</span><b>2,000 ft</b></li>
-          <li><span>Maximum altitude, &sect; 107.51(b)</span><b>400 ft AGL</b></li>
+          <li><span>Maximum altitude, Section 107.51(b)</span><b>400 ft AGL</b></li>
         </ul>
         <div class="cc-formula">
           <div class="cc-formula-line">lowest cloud of <b>any</b> coverage &minus; 500 ft</div>
           <div class="cc-formula-line">then take the <b>lower</b> of that and 400 ft</div>
         </div>
         <div class="note-box" style="margin-bottom:0;">
-          <b>Three traps.</b> A <span class="mono f-sky">FEW</span> or <span class="mono f-sky">SCT</span> layer is not a ceiling, but it still counts &mdash; the rule says cloud, not ceiling. Dropping lower does nothing about the <b>2,000 ft horizontal</b> requirement, which is a separate obligation you satisfy by moving sideways. And the &sect; 107.51(b) structure exception lets you exceed 400 ft near a structure, but it never lets you into a cloud &mdash; the 500 ft still applies.
+          <b>Three traps.</b> A <span class="mono f-sky">FEW</span> or <span class="mono f-sky">SCT</span> layer is not a ceiling, but it still counts &mdash; the rule says cloud, not ceiling. Dropping lower does nothing about the <b>2,000 ft horizontal</b> requirement, which is a separate obligation you satisfy by moving sideways. And the Section 107.51(b) structure exception lets you exceed 400 ft near a structure, but it never lets you into a cloud &mdash; the 500 ft still applies.
         </div>
       </div>
 
@@ -1212,9 +1216,9 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 
     <div class="section-check" id="checkCloud">
       <h4>Quick check</h4>
-      <p class="sc-q">You are flying at 250 ft AGL. A scattered layer sits at 900 ft, and the nearest edge of it is 1,400 ft away horizontally. Are you compliant with &sect; 107.51(d)?</p>
+      <p class="sc-q">You are flying at 250 ft AGL. A scattered layer sits at 900 ft, and the nearest edge of it is 1,400 ft away horizontally. Are you compliant with Section 107.51(d)?</p>
       <div class="pill-row">
-        <button class="pill-btn" data-ans="wrong" data-fb="Check the second clearance. You are 650 ft below the layer, which clears the 500 ft requirement comfortably &mdash; but you are only 1,400 ft from it horizontally, and &sect; 107.51(d)(2) requires 2,000 ft. Descending would not help; you have to move away.">Yes &mdash; 250 ft is well below the 900 ft layer</button>
+        <button class="pill-btn" data-ans="wrong" data-fb="Check the second clearance. You are 650 ft below the layer, which clears the 500 ft requirement comfortably &mdash; but you are only 1,400 ft from it horizontally, and Section 107.51(d)(2) requires 2,000 ft. Descending would not help; you have to move away.">Yes &mdash; 250 ft is well below the 900 ft layer</button>
         <button class="pill-btn" data-ans="right" data-fb="Correct. The vertical clearance is fine (900 &minus; 250 = 650 ft, above the 500 ft minimum), but horizontally you are 600 ft short of the 2,000 ft requirement. The two clearances are independent, and this one is fixed by moving sideways, not down.">No &mdash; you are 600 ft short horizontally</button>
         <button class="pill-btn" data-ans="wrong" data-fb="Not quite. 250 ft is a legal altitude here: the layer at 900 ft minus 500 ft allows up to 400 ft, and the 400 ft cap allows 400 ft. Altitude is not the problem &mdash; the 1,400 ft horizontal distance is.">No &mdash; 250 ft is above your under-cloud limit</button>
       </div>
@@ -1373,7 +1377,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 <section id="tafbridge">
   <div class="wrap">
     <div class="section-head"><span class="num">09</span><h2>METAR vs. TAF — Reading the Forecast</h2></div>
-    <p class="section-intro">A METAR tells you what the sky <i>is</i> doing; a TAF tells you what it <i>will</i> do. A sound preflight combines current observations with forecasts. § 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so. Here is the same field, same morning — observation alongside the forecast.</p>
+    <p class="section-intro">A METAR tells you what the sky <i>is</i> doing; a TAF tells you what it <i>will</i> do. A sound preflight combines current observations with forecasts. Section 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so. Here is the same field, same morning — observation alongside the forecast.</p>
 
     <div class="card glow" id="tafExample">
       <div class="taf-compare">
@@ -1420,7 +1424,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <div class="section-head"><span class="num">10</span><h2>Part 107 Go / No-Go Trainer</h2></div>
     <p class="section-intro">Read each METAR and commit to a call before you look. Each scenario carries a real-world mission — the kind of pressure that actually causes bad decisions in the field — plus the aircraft profile and classroom SOP you are flying under. Six steps: <b>do the reported numbers meet the Part 107 minimums</b>, <b>would you fly the mission</b>, <b>how sure are you</b>, <b>which condition is doing the limiting</b>, <b>what controls the decision</b>, and <b>what is the best response</b>.</p>
     <div class="note-box">
-      <b>Three different questions.</b> An airport observation can <i>meet the reported numerical minimums</i> and still be an <i>operational NO-GO</i>. It can also meet those minimums and still not be legal at your site, because &sect; 107.51 is written around the flight visibility <b>you</b> observe and the clouds above <b>your</b> operating area. Step 1 screens the reported numbers. Step 2 asks whether the mission should fly. Neither one is a substitute for looking at the sky where you are standing.
+      <b>Three different questions.</b> An airport observation can <i>meet the reported numerical minimums</i> and still be an <i>operational NO-GO</i>. It can also meet those minimums and still not be legal at your site, because Section 107.51 is written around the flight visibility <b>you</b> observe and the clouds above <b>your</b> operating area. Step 1 screens the reported numbers. Step 2 asks whether the mission should fly. Neither one is a substitute for looking at the sky where you are standing.
     </div>
 
     <div class="scorebar">
@@ -1544,7 +1548,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
           <tr><td class="mono f-reporttype">SPECI</td><td>An unscheduled observation, issued when conditions change significantly between hours.</td></tr>
           <tr><td class="mono">TAF</td><td>What the weather <b>will be</b>. A forecast for a 5-statute-mile radius around the field, issued four times a day.</td></tr>
         </table>
-        <p style="font-size:.8rem; color:var(--text-dim); margin:10px 0 0;">§ 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so. A METAR alone will not tell you the front arrives in forty minutes.</p>
+        <p style="font-size:.8rem; color:var(--text-dim); margin:10px 0 0;">Section 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so. A METAR alone will not tell you the front arrives in forty minutes.</p>
       </div>
 
       <div class="card">
@@ -1562,7 +1566,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
       <div class="card">
         <h3 style="color:var(--gold-bright);">Three Different Questions</h3>
         <table>
-          <tr><td><b>1. Reported minimums</b></td><td>Do the numbers in this airport observation meet &sect; 107.51? <b>MET</b> or <b>NOT MET</b>.</td></tr>
+          <tr><td><b>1. Reported minimums</b></td><td>Do the numbers in this airport observation meet Section 107.51? <b>MET</b> or <b>NOT MET</b>.</td></tr>
           <tr><td><b>2. Site verification</b></td><td>Flight visibility you observe, where the clouds actually are, 2,000 ft horizontal clearance, whether the layer is over your area, terrain, observation age, changes since.</td></tr>
           <tr><td><b>3. Operational call</b></td><td>Given the aircraft, the SOP and the hazards: <b>GO</b>, <b>GO with restrictions</b>, or <b>NO-GO</b>.</td></tr>
         </table>
@@ -1586,7 +1590,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
           <tr><td><b>Small spread = fog risk</b></td><td>Temp and dew point within ~3 °C.</td></tr>
           <tr><td><b>That airport is not your field</b></td><td>Conditions and ground elevation both differ.</td></tr>
           <tr><td><b>Wind is not a Part 107 number</b></td><td>No maximum wind speed in the rule. Limits come from the aircraft and local policy.</td></tr>
-          <tr><td><b>Thunderstorms are a hazard</b></td><td>Not an enumerated numerical prohibition &mdash; but &sect; 107.49 and &sect; 107.19 still apply.</td></tr>
+          <tr><td><b>Thunderstorms are a hazard</b></td><td>Not an enumerated numerical prohibition &mdash; but Section 107.49 and Section 107.19 still apply.</td></tr>
         </table>
       </div>
 
@@ -1596,7 +1600,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
           <li><span>Minimum flight visibility</span><b>3 statute miles</b></li>
           <li><span>Vertical clearance from <i>any</i> cloud</span><b>500 ft below</b></li>
           <li><span>Horizontal clearance from <i>any</i> cloud</span><b>2,000 ft</b></li>
-          <li><span>Maximum altitude (AGL)</span><b>400 feet</b> <small style="color:var(--text-dim);">(exception: above 400 ft if within 400 ft of a structure, per § 107.51(b))</small></li>
+          <li><span>Maximum altitude (AGL)</span><b>400 feet</b> <small style="color:var(--text-dim);">(exception: above 400 ft if within 400 ft of a structure, per Section 107.51(b))</small></li>
           <li><span>Max groundspeed</span><b>87 knots</b></li>
           <li><span>All METAR times are in</span><b>UTC / Zulu</b></li>
         </ul>
@@ -2105,7 +2109,7 @@ function verifyPromptHtml(focus){
   </div>`;
 }
 
-/* Screens ONLY the numbers printed in the report against the § 107.51 minimums.
+/* Screens ONLY the numbers printed in the report against the Section 107.51 minimums.
    It deliberately does not decide whether a flight at the school would be
    legal: that turns on what the remote PIC observes at the site. */
 function reportedMinimumsStatus(meta){
@@ -2319,7 +2323,7 @@ function decodeRemarkGroup(tokens, i){
    airport is not the quantity the regulation is written around. */
 function VIS_TIP(miles, op){
   const below = op === 'less than' || (miles !== null && miles < 3);
-  let t = `<p class="tip">§ 107.51(c) sets a minimum <b>flight visibility of 3 statute miles</b> — measured <b>from your control station</b>, not from the airport sensor. `;
+  let t = `<p class="tip">Section 107.51(c) sets a minimum <b>flight visibility of 3 statute miles</b> — measured <b>from your control station</b>, not from the airport sensor. `;
   if (below){
     t += `This report is <b>below 3 SM</b>, which is strong evidence you should not launch. `;
   } else {
@@ -2472,7 +2476,7 @@ function parseMETAR(rawInput){
         (meta.tsVicinity && !meta.tsOverhead
           ? '<b>VC</b> means the thunderstorm is <b>in the vicinity</b> — roughly 5 to 10 SM from the station, not over it. That is not reassurance: storms move, often faster than you can recover an aircraft, and the gust front arrives well ahead of the rain. Treat it as an operational NO-GO and find out which way the cell is tracking. '
           : '') +
-        'Part 107 sets <b>no numerical thunderstorm prohibition</b> — a thunderstorm is an <b>operational hazard</b>, not a listed minimum. But § 107.49 requires you to assess <b>local weather conditions</b> and § 107.19 makes you responsible for the safety of the operation. Lightning, wind shear, downbursts and hail are why every experienced pilot treats a thunderstorm as an operational NO-GO. This is judgment, and the judgment is not close.</p>' : '');
+        'Part 107 sets <b>no numerical thunderstorm prohibition</b> — a thunderstorm is an <b>operational hazard</b>, not a listed minimum. But Section 107.49 requires you to assess <b>local weather conditions</b> and Section 107.19 makes you responsible for the safety of the operation. Lightning, wind shear, downbursts and hail are why every experienced pilot treats a thunderstorm as an operational NO-GO. This is judgment, and the judgment is not close.</p>' : '');
     fields.push({type:'weather', raw, label:'Weather Phenomena', html, sub:wxGroup});
   }
 
@@ -2503,9 +2507,9 @@ function parseMETAR(rawInput){
     if (meta.lowestLayerFt !== null){
       const capFt = Math.max(0, meta.lowestLayerFt - 500);
       const notCeiling = meta.ceilingFt === null || meta.lowestLayerFt < meta.ceilingFt;
-      html += `<p class="tip">§ 107.51(d) requires 500 ft below and 2,000 ft horizontally from <b>any</b> cloud — not just the ceiling.` +
+      html += `<p class="tip">Section 107.51(d) requires 500 ft below and 2,000 ft horizontally from <b>any</b> cloud — not just the ceiling.` +
         (notCeiling ? ` The lowest layer here is <b>${meta.lowestLayerCov}</b> at <b>${meta.lowestLayerFt.toLocaleString()} ft</b>, which is not a ceiling but still limits you.` : '') +
-        ` <b>Conservative under-cloud planning limit if this layer represents the operating site: ${capFt.toLocaleString()} ft AGL.</b> Part 107 separately caps you at 400 ft AGL (exception: within 400 ft of a structure per § 107.51(b)), so the lower of the two is <b>${Math.min(400, capFt)} ft AGL</b>. Treat that as a planning number, not an unconditional legal maximum: it holds only if this layer really is over your operating area, and it does nothing about the <b>2,000 ft horizontal</b> clearance you owe every cloud. Confirm actual cloud position at your site — a METAR reports coverage at the <i>airport</i>.</p>`;
+        ` <b>Conservative under-cloud planning limit if this layer represents the operating site: ${capFt.toLocaleString()} ft AGL.</b> Part 107 separately caps you at 400 ft AGL (exception: within 400 ft of a structure per Section 107.51(b)), so the lower of the two is <b>${Math.min(400, capFt)} ft AGL</b>. Treat that as a planning number, not an unconditional legal maximum: it holds only if this layer really is over your operating area, and it does nothing about the <b>2,000 ft horizontal</b> clearance you owe every cloud. Confirm actual cloud position at your site — a METAR reports coverage at the <i>airport</i>.</p>`;
     }
     fields.push({type:'sky', raw, label:'Sky Condition', html, sub:skyGroup});
   }
@@ -2727,7 +2731,7 @@ const WALKTHROUGH_EXAMPLES = [
     verdict:'nogo',
     scaffold:{auto:false, predict:true, color:true, explain:true},
     scaffoldNote:'Predict each field before you reveal it',
-    summary:'<b>Reported minimums: NOT MET</b> — 2 SM is below the § 107.51(c) minimum of 3 SM, and that is the <i>only</i> numerical failure here. Note what does not fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers. <b>Separately, this is an operational NO-GO</b> by every measure: heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), cumulonimbus at 1,000 ft with active convection, and pressure falling rapidly. Part 107 sets no maximum wind speed and names no thunderstorm prohibition — those are operational hazards rather than numerical minimums, and the judgment is not close.'
+    summary:'<b>Reported minimums: NOT MET</b> — 2 SM is below the Section 107.51(c) minimum of 3 SM, and that is the <i>only</i> numerical failure here. Note what does not fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers. <b>Separately, this is an operational NO-GO</b> by every measure: heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), cumulonimbus at 1,000 ft with active convection, and pressure falling rapidly. Part 107 sets no maximum wind speed and names no thunderstorm prohibition — those are operational hazards rather than numerical minimums, and the judgment is not close.'
   },
   {
     title:'The Ceiling Question',
@@ -2743,7 +2747,7 @@ const WALKTHROUGH_EXAMPLES = [
     verdict:'caution',
     scaffold:{auto:false, predict:false, color:false, explain:false, coldRead:true},
     scaffoldNote:'No color, no narration — you are on your own',
-    summary:'This one catches almost everybody. Visibility is 8 SM and the <i>ceiling</i> — the lowest broken or overcast layer — is BKN060 at 6,000 ft, which looks wide open. But § 107.51(d) says 500 ft below <b>any</b> cloud, and there is a scattered layer at <b>700 ft</b>. <b>Reported minimums: MET</b>, but if that scattered layer is over your operating area the conservative under-cloud planning limit is <b>200 ft AGL</b> — and you must also stay 2,000 ft horizontally from every one of those puffs, which on a day like this means repositioning constantly. <b>GO with restrictions</b>, and genuinely awkward to fly. Also note the report type: <b>SPECI</b>, not METAR — something changed enough between hourly observations to warrant a special report, so find out what.'
+    summary:'This one catches almost everybody. Visibility is 8 SM and the <i>ceiling</i> — the lowest broken or overcast layer — is BKN060 at 6,000 ft, which looks wide open. But Section 107.51(d) says 500 ft below <b>any</b> cloud, and there is a scattered layer at <b>700 ft</b>. <b>Reported minimums: MET</b>, but if that scattered layer is over your operating area the conservative under-cloud planning limit is <b>200 ft AGL</b> — and you must also stay 2,000 ft horizontally from every one of those puffs, which on a day like this means repositioning constantly. <b>GO with restrictions</b>, and genuinely awkward to fly. Also note the report type: <b>SPECI</b>, not METAR — something changed enough between hourly observations to warrant a special report, so find out what. Finally, <b>RMK</b> begins the remarks section, and <b>AO2</b> means this is an automated station with a precipitation discriminator — it can distinguish rain from snow.'
   }
 ];
 
@@ -2923,7 +2927,7 @@ function part107Box(meta){
   const opNotes = [];
   if (meta.hasThunderstorm) opNotes.push('<b style="color:#ff8a8a;">Thunderstorm ' +
     (meta.tsVicinity && !meta.tsOverhead ? 'in the vicinity (5–10 SM from the station, not over it — but storms move).' : 'reported.') +
-    '</b> Part 107 sets no numerical thunderstorm prohibition — this is an operational hazard. But § 107.49 requires assessment of local weather conditions and § 107.19 makes the remote PIC responsible for the safety of the operation. Lightning, downbursts, hail and wind shear make this an operational NO-GO.');
+    '</b> Part 107 sets no numerical thunderstorm prohibition — this is an operational hazard. But Section 107.49 requires assessment of local weather conditions and Section 107.19 makes the remote PIC responsible for the safety of the operation. Lightning, downbursts, hail and wind shear make this an operational NO-GO.');
   if (meta.windGustKt !== null) opNotes.push(`Gusts to ${meta.windGustKt} kt. Part 107 sets no maximum wind speed, so this violates no numerical minimum — wind limits come from the aircraft's documentation and from local policy.`);
   if (meta.hasPrecip) opNotes.push('Precipitation reported. Whether your aircraft may fly in it is a question for its manual and your local policy, not for Part 107.');
   if (meta.hasObscuration) opNotes.push('Obscuration reported (fog, mist, haze or smoke). Expect visibility at your site to differ from the number above, and expect contrast — and therefore your usable visual-line-of-sight range — to be worse than the raw figure suggests.');
@@ -2943,9 +2947,9 @@ function part107Box(meta){
         ? `<b>${meta.lowestLayerCov} at ${meta.lowestLayerFt.toLocaleString()} ft AGL</b>${notCeiling ? ' — not a ceiling, but cloud clearance applies to <i>any</i> cloud' : ''}`
         : 'none reported'}</li>
       ${capFromCloud !== null
-        ? `<li>Conservative under-cloud planning limit <i>if this layer represents the operating site</i>: <b>${capFromCloud.toLocaleString()} ft AGL</b>. Part 107 separately caps you at 400 ft AGL (exception: within 400 ft of a structure per § 107.51(b)), so the lower of the two is <b>${planningLimit} ft AGL</b>${cloudIsLimiting ? ', set here by the cloud clearance rule rather than by the 400 ft cap' : ''}.
+        ? `<li>Conservative under-cloud planning limit <i>if this layer represents the operating site</i>: <b>${capFromCloud.toLocaleString()} ft AGL</b>. Part 107 separately caps you at 400 ft AGL (exception: within 400 ft of a structure per Section 107.51(b)), so the lower of the two is <b>${planningLimit} ft AGL</b>${cloudIsLimiting ? ', set here by the cloud clearance rule rather than by the 400 ft cap' : ''}.
           <small style="color:var(--text-dim); display:block;">A planning number, not an unconditional legal maximum. It assumes the reported layer really is above your operating area, and it says nothing about the <b>2,000 ft horizontal</b> clearance you must also keep from every cloud.</small></li>`
-        : `<li>Altitude cap: <b>400 ft AGL</b> (exception: within 400 ft of a structure per § 107.51(b)). No cloud layer is reported, so no under-cloud planning limit applies to these numbers.</li>`}
+        : `<li>Altitude cap: <b>400 ft AGL</b> (exception: within 400 ft of a structure per Section 107.51(b)). No cloud layer is reported, so no under-cloud planning limit applies to these numbers.</li>`}
     </ul>
     ${opNotes.length ? `<h4 style="margin:16px 0 8px;">Operational notes — hazards, not numerical minimums</h4>
       <ul>${opNotes.map(n=>`<li>${n}</li>`).join('')}</ul>` : ''}
@@ -2953,7 +2957,7 @@ function part107Box(meta){
       <ul>${sop.map(n=>`<li>${n}</li>`).join('')}</ul>
       <p style="font-size:.76rem; color:var(--text-dim); margin:6px 0 0; font-style:italic;">${CLASS_SOP.note}</p>` : ''}
     ${verifyBoxHtml()}
-    <p style="font-size:.8rem; color:var(--text-dim); margin:12px 0 0;">This check reads one observation from one airport. Meeting the reported minimums is <b>not</b> the same as being legal where you are standing: § 107.51 is written around the <b>flight visibility you observe from your control station</b> and the clouds above <b>your</b> site. Treat this as a briefing, not a clearance.</p>
+    <p style="font-size:.8rem; color:var(--text-dim); margin:12px 0 0;">This check reads one observation from one airport. Meeting the reported minimums is <b>not</b> the same as being legal where you are standing: Section 107.51 is written around the <b>flight visibility you observe from your control station</b> and the clouds above <b>your</b> site. Treat this as a briefing, not a clearance.</p>
   </div>`;
 }
 
@@ -3158,9 +3162,11 @@ const BUILDER_CHALLENGES = [
   });
   el('chNextBtn').addEventListener('click', ()=>{
     challengeIdx = (challengeIdx + 1) % BUILDER_CHALLENGES.length; refresh();
+    document.querySelector('.challenge-box').scrollIntoView({behavior:'smooth', block:'start'});
   });
   el('chPrevBtn').addEventListener('click', ()=>{
     challengeIdx = (challengeIdx - 1 + BUILDER_CHALLENGES.length) % BUILDER_CHALLENGES.length; refresh();
+    document.querySelector('.challenge-box').scrollIntoView({behavior:'smooth', block:'start'});
   });
   refresh();
 })();
@@ -3333,7 +3339,7 @@ const MITIGATIONS = [
 
 /* Every scenario carries:
    - id            stable, so cumulative progress can tell repeats from new work
-   - reportedMins  'met' | 'notmet' — do the NUMBERS IN THE REPORT clear § 107.51?
+   - reportedMins  'met' | 'notmet' — do the NUMBERS IN THE REPORT clear Section 107.51?
                    This is never a finding about the student's own site.
    - operational   'go' | 'go-restricted' | 'nogo' — would this mission fly,
                    given the assigned aircraft profile and the classroom SOP?
@@ -3366,7 +3372,7 @@ const GONOGO_SCENARIOS = [
     opMisconception:'Anything other than NO-GO means the visibility number did not stop you. Half a statute mile is not a condition you fly around: no altitude, no smaller aircraft and no shorter flight turns 1/2 SM into the 3 SM the rule asks for. When the numbers fail, the operational call is already made.',
     misconception:'Reading this as meeting the reported minimums means you missed that 1/2 SM is far below the 3 SM minimum. Fractions in the visibility field are common — read them carefully.',
     mission:'A construction company needs a progress-mapping flight. The project manager drove 90 minutes to be here and the crew is waiting for your data before they can pour concrete.',
-    explain:'<b>Reported minimums: NOT MET</b> — half a statute mile of visibility, far below the § 107.51(c) minimum of 3 SM. Nothing else in the report matters until that changes. <b>Operational NO-GO</b> — the clouds are at 12,000 ft and the air is dead calm, but you cannot see far enough to operate safely. Note the temperature/dew-point spread of 1 °C: this mist is one degree from becoming fog, so conditions are more likely to deteriorate than improve. The project manager\'s schedule does not change the weather. Delay, and say so plainly rather than letting the crew think you are still deciding.'
+    explain:'<b>Reported minimums: NOT MET</b> — half a statute mile of visibility, far below the Section 107.51(c) minimum of 3 SM. Nothing else in the report matters until that changes. <b>Operational NO-GO</b> — the clouds are at 12,000 ft and the air is dead calm, but you cannot see far enough to operate safely. Note the temperature/dew-point spread of 1 °C: this mist is one degree from becoming fog, so conditions are more likely to deteriorate than improve. The project manager\'s schedule does not change the weather. Delay, and say so plainly rather than letting the crew think you are still deciding.'
   },
   {
     id:'kord-gusts',
@@ -3390,7 +3396,7 @@ const GONOGO_SCENARIOS = [
     opMisconception:'Anything other than NO-GO means a thunderstorm did not settle it for you. Part 107 names no numerical thunderstorm prohibition, which is exactly why this one is judgment rather than arithmetic — and the judgment is not close. Lightning, gust fronts, hail and wind shear are not hazards you manage with a shorter flight or a smaller aircraft.',
     misconception:'Reading this as meeting the reported minimums means you missed the 2 SM visibility. When thunderstorms dominate the picture it is easy to fixate on wind and weather and skip straight past the basic visibility number.',
     mission:'An insurance adjuster needs roof-damage photos from yesterday\'s hailstorm. The homeowner\'s claim can\'t proceed without them, and the adjuster is leaving town tomorrow.',
-    explain:'<b>Reported minimums: NOT MET</b> — visibility is 2 SM, below the 3 SM minimum. That is the numerical failure, and it is the only one. Note what does <i>not</i> fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers here. <b>Separately, this is an unquestionable operational NO-GO</b> — heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), and cumulonimbus with active convection. Part 107 names no maximum wind and no thunderstorm prohibition; § 107.49 requires you to assess local weather conditions and § 107.19 makes you responsible for the safety of the operation. The insurance deadline does not move the atmosphere. Cancel today\'s attempt and rebook for tomorrow morning.'
+    explain:'<b>Reported minimums: NOT MET</b> — visibility is 2 SM, below the 3 SM minimum. That is the numerical failure, and it is the only one. Note what does <i>not</i> fail: BKN010 at 1,000 ft still leaves 600 ft between a 400-ft aircraft and the reported base, so the clouds are not what breaks the numbers here. <b>Separately, this is an unquestionable operational NO-GO</b> — heavy thunderstorm rain, gusts to 35 kt (well past the 20 kt classroom gust limit), and cumulonimbus with active convection. Part 107 names no maximum wind and no thunderstorm prohibition; Section 107.49 requires you to assess local weather conditions and Section 107.19 makes you responsible for the safety of the operation. The insurance deadline does not move the atmosphere. Cancel today\'s attempt and rebook for tomorrow morning.'
   },
   {
     id:'kden-ovc005',
@@ -3435,7 +3441,7 @@ const GONOGO_SCENARIOS = [
     factors:['density'], drivers:['aircraft'], mitigations:['shorter'],
     sop:['heat'],
     verifyFocus:'the temperature at your site, in the sun, at ground level — often several degrees above the airport\'s shaded sensor',
-    opMisconception:'Heat appears nowhere in § 107.51, so this is never a numbers failure — but a flat GO ignores what 38 °C does to the aircraft. Thin air means less lift per propeller revolution: slower climb, shorter endurance, less margin if something goes wrong. That is a restriction on how long you fly and how much reserve you land with, not on whether you fly at all.',
+    opMisconception:'Heat appears nowhere in Section 107.51, so this is never a numbers failure — but a flat GO ignores what 38 °C does to the aircraft. Thin air means less lift per propeller revolution: slower climb, shorter endurance, less margin if something goes wrong. That is a restriction on how long you fly and how much reserve you land with, not on whether you fly at all.',
     misconception:'Reading this as failing the reported minimums ignores that sky-clear, 10 SM and light winds are about as open as Part 107 gets. The trap is density altitude from 38 °C — something your aircraft cares about, not something the regulation numbers.',
     mission:'You are delivering sample photos for a solar-farm bid. The client is evaluating three drone companies and you want to impress them.',
     explain:'<b>Reported minimums: MET</b> — ten miles, clear skies, nine knots. Nothing in Part 107 restricts this flight at all. <b>Operational GO with restrictions</b> — what should catch your eye is 38 °C with a below-standard altimeter setting: high density altitude. Thin air means the propellers move less mass per revolution, so the aircraft climbs more slowly and the battery drains faster. That is at or above the 35 °C hot-weather threshold in the classroom profile, and the profile\'s answer is a <b>shorter flight with a larger battery reserve</b> — not a smaller box on the map. Shrinking the operating area does nothing about endurance; landing early with charge in hand does. An emergency landing in front of the client you are trying to impress is worse than a short, well-executed flight.'
@@ -3936,7 +3942,7 @@ const GONOGO_SCENARIOS = [
 
    Generative, on the same pattern as the Zulu drill: there is no item bank to
    memorize, so the only way through is to actually do the arithmetic. Every
-   question is built straight from 14 CFR § 107.51:
+   question is built straight from 14 CFR Section 107.51:
 
      (b)    400 ft AGL ceiling. The structure exception is deliberately kept
             out of the arithmetic — the prompt tells the student to assume no
@@ -4036,7 +4042,7 @@ const GONOGO_SCENARIOS = [
       const dist = already ? randInt(20, 34) * 100 : randInt(2, 19) * 100;
       current = {kind, dist, answer: Math.max(0, 2000 - dist)};
       qEl.innerHTML = `<span class="f-sky">${ft(dist)}</span> from the nearest cloud`;
-      askEl.innerHTML = 'That is your <b>horizontal</b> distance from the nearest cloud. How much further must you move to satisfy &sect; 107.51(d)(2)?';
+      askEl.innerHTML = 'That is your <b>horizontal</b> distance from the nearest cloud. How much further must you move to satisfy Section 107.51(d)(2)?';
     } else {
       const sky = buildSky(kind);
       const answer = sky.lowestFt === null
@@ -4061,7 +4067,7 @@ const GONOGO_SCENARIOS = [
     if (sky.lowestFt === null){
       return `<div class="cc-ladder">
         <div class="cc-row cc-cloud"><span class="cc-h">—</span><span class="cc-l"><span class="mono">${sky.lowestCode}</span> — nothing low enough to clear</span></div>
-        <div class="cc-row cc-you"><span class="cc-h">400 ft</span><span class="cc-l">your limit — the § 107.51(b) cap is all that applies</span></div>
+        <div class="cc-row cc-you"><span class="cc-h">400 ft</span><span class="cc-l">your limit — the Section 107.51(b) cap is all that applies</span></div>
       </div>`;
     }
     const under = Math.max(0, sky.lowestFt - 500);
@@ -4075,7 +4081,7 @@ const GONOGO_SCENARIOS = [
       rows.push(`<div class="cc-row cc-you"><span class="cc-h">${ft(under)}</span><span class="cc-l">your limit — the cloud governs, not the 400 ft cap</span></div>`);
     } else {
       rows.push(`<div class="cc-row"><span class="cc-h">${ft(under)}</span><span class="cc-l">under-cloud limit — above the cap, so not the binding one</span></div>`);
-      rows.push(`<div class="cc-row cc-you"><span class="cc-h">400 ft</span><span class="cc-l">your limit — the § 107.51(b) cap governs</span></div>`);
+      rows.push(`<div class="cc-row cc-you"><span class="cc-h">400 ft</span><span class="cc-l">your limit — the Section 107.51(b) cap governs</span></div>`);
     }
     return `<div class="cc-ladder">${rows.join('')}</div>`;
   }
@@ -4103,7 +4109,7 @@ const GONOGO_SCENARIOS = [
     const sky = c.sky;
     let lead;
     if (sky.lowestFt === null){
-      lead = `<span class="mono">${sky.lowestCode}</span> means ${CLEAR_MEANING[sky.lowestCov] || 'no significant cloud'}. Nothing is low enough to clear, so the only thing limiting you is the <b>400 ft</b> cap in § 107.51(b).`;
+      lead = `<span class="mono">${sky.lowestCode}</span> means ${CLEAR_MEANING[sky.lowestCov] || 'no significant cloud'}. Nothing is low enough to clear, so the only thing limiting you is the <b>400 ft</b> cap in Section 107.51(b).`;
     } else if (c.answer === 0){
       lead = `<span class="mono">${sky.lowestCode}</span> sits at ${ft(sky.lowestFt)}. ${sky.lowestFt.toLocaleString()} − 500 leaves nothing above the ground: there is <b>no altitude</b> at which you can fly and stay 500 ft below it. The answer is <b>0</b>.`;
     } else if (c.answer < 400){
@@ -4119,7 +4125,7 @@ const GONOGO_SCENARIOS = [
       const ceiling = sky.groups.find(g => (g.cov === 'BKN' || g.cov === 'OVC') && g.ft > sky.lowestFt);
       if (ceiling && c.answer < 400){
         /* The lower, non-ceiling layer really is the binding constraint. */
-        trapNote = `<p class="cc-note"><span class="mono">${ceiling.code}</span> is the <i>ceiling</i>, and it is not what limits you. § 107.51(d)(1) says 500 ft below <b>any</b> cloud — a ${sky.lowestCov} layer counts every bit as much as a ceiling does.</p>`;
+        trapNote = `<p class="cc-note"><span class="mono">${ceiling.code}</span> is the <i>ceiling</i>, and it is not what limits you. Section 107.51(d)(1) says 500 ft below <b>any</b> cloud — a ${sky.lowestCov} layer counts every bit as much as a ceiling does.</p>`;
       } else if (ceiling){
         /* Neither cloud binds here, so the note is about the habit rather than
            the number: you still read the lowest layer first. */
@@ -4234,8 +4240,8 @@ const RATIONALE_RUBRIC = [
      steps above it. */
   function modelAnswer(sc){
     const minsText = sc.reportedMins === 'notmet'
-      ? 'The reported numbers do <b>not</b> meet the § 107.51 minimums'
-      : 'The reported numbers <b>meet</b> the § 107.51 minimums';
+      ? 'The reported numbers do <b>not</b> meet the Section 107.51 minimums'
+      : 'The reported numbers <b>meet</b> the Section 107.51 minimums';
     const opText = sc.operational === 'nogo' ? 'my call is <b>Operational NO-GO</b>'
                  : sc.operational === 'go-restricted' ? 'my call is <b>GO with restrictions</b>'
                  : 'my call is <b>Operational GO</b>';
@@ -4328,7 +4334,7 @@ const EXAM_BANK = [
   {cat:'Clouds', metar:'METAR KOKC 141853Z 18010KT 10SM FEW003 SCT120 27/17 A2996 RMK AO2',
    q:'Which layer determines your under-cloud altitude limit?',
    choices:['SCT120, because scattered layers count','FEW003, because clearance applies to every cloud','Neither — FEW and SCT are not ceilings','SCT120, because it is the higher layer'], answer:1,
-   explain:'FEW003 sits at 300 ft. There is no ceiling in this report at all, but § 107.51(d) is written about clouds, not ceilings — so if that few layer is over your operating area it leaves essentially nothing underneath it.'},
+   explain:'FEW003 sits at 300 ft. There is no ceiling in this report at all, but Section 107.51(d) is written about clouds, not ceilings — so if that few layer is over your operating area it leaves essentially nothing underneath it.'},
 
   {cat:'Clouds', metar:'METAR KLIT 141853Z 22007KT 10SM BKN030 OVC080 20/12 A3010 RMK AO2',
    q:'What is the ceiling?',
@@ -4338,10 +4344,10 @@ const EXAM_BANK = [
   {cat:'Visibility', metar:'METAR KFSM 141853Z 14009KT 2 1/2SM HZ SCT050 30/21 A2994 RMK AO2',
    q:'Does this report meet the Part 107 visibility minimum?',
    choices:['Yes — 2 1/2 SM is above the 2 SM minimum','No — the reported visibility is below the 3 SM minimum','Yes — haze does not count against visibility','Only if you stay below 200 ft'], answer:1,
-   explain:'The § 107.51(c) minimum is 3 statute miles. 2 1/2 SM is below it, so the reported numbers do not meet the minimum. There is no lower alternative minimum in standard Part 107 operations.'},
+   explain:'The Section 107.51(c) minimum is 3 statute miles. 2 1/2 SM is below it, so the reported numbers do not meet the minimum. There is no lower alternative minimum in standard Part 107 operations.'},
 
   {cat:'Visibility', metar:null,
-   q:'Under § 107.51(c), the 3-mile minimum applies to visibility measured from where?',
+   q:'Under Section 107.51(c), the 3-mile minimum applies to visibility measured from where?',
    choices:['The nearest reporting airport','The location of your control station','The aircraft itself','The center of your operating area'], answer:1,
    explain:'The rule is written around <b>flight visibility as observed from the location of the control station</b>. A METAR is excellent evidence, but it describes an airport that may be many miles away.'},
 
@@ -4408,12 +4414,12 @@ const EXAM_BANK = [
   {cat:'Visibility', metar:'METAR KLIT 141853Z 20012KT 10SM BKN035 26/18 A2999 RMK AO2',
    q:'The METAR says 10SM. Standing at your site you can see roughly 2 miles through smoke. What governs?',
    choices:['The METAR — it is the official source','Your observed flight visibility — you may not fly','Average the two','The METAR, provided you log the discrepancy'], answer:1,
-   explain:'§ 107.51(c) is about flight visibility observed from your control station. If you can only see two miles, you are below minimums regardless of what an airport twenty miles away recorded.'},
+   explain:'Section 107.51(c) is about flight visibility observed from your control station. If you can only see two miles, you are below minimums regardless of what an airport twenty miles away recorded.'},
 
   {cat:'Report type', metar:null,
    q:'What is the difference between a METAR and a TAF?',
    choices:['METAR is a forecast; TAF is an observation','METAR is an observation; TAF is a forecast','They are the same, in different formats','TAF is the international version of METAR'], answer:1,
-   explain:'A METAR reports what the weather <i>is</i> at one field. A TAF forecasts what it <i>will be</i> within about 5 SM of the field. § 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so.'},
+   explain:'A METAR reports what the weather <i>is</i> at one field. A TAF forecasts what it <i>will be</i> within about 5 SM of the field. Section 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so.'},
 
   {cat:'Wind', metar:'METAR KOKC 141853Z 00000KT 10SM CLR 18/06 A3011 RMK AO2',
    q:'What does 00000KT mean?',
@@ -4464,7 +4470,7 @@ const EXAM_BANK = [
        that layer actually being over the operating site, and it never
        displaces the 2,000 ft horizontal obligation.
      · The reported numbers are screened MET / NOT MET. Never legal/illegal,
-       and the reported figure never settles the § 107.51(c) question on its
+       and the reported figure never settles the Section 107.51(c) question on its
        own — site verification is still owed, every time.
      · cat must stay inside the hand-written bank's category names, because
        initExam's adaptive weighting keys off it and a new name would start a
@@ -4594,7 +4600,7 @@ const EXAM_GEN = {
      accompany — FG below 5/8 SM, BR and HZ above it — and to the temperature,
      since freezing fog is not something you report at 20 °C. Generated
      reports carry no precipitation: precipitation is a classroom-SOP question
-     rather than a § 107.51 one, and mixing it into an item about ceilings or
+     rather than a Section 107.51 one, and mixing it into an item about ceilings or
      wind invites the student to conflate the two. */
   wxFor(vis, temp){
     const freezing = temp && temp.t <= 0;
@@ -4724,7 +4730,7 @@ const EXAM_GEN = {
      The caveats that must ride along with every answer of a given kind. Kept
      in one place so a future edit cannot fix the wording in three explains
      and miss the fourth. */
-  SITE_NOTE: ' A METAR describes an airport, not your operating site, so the reported figure narrows the question — it never closes it. § 107.51(c) is written around the flight visibility <i>you</i> observe from your control station.',
+  SITE_NOTE: ' A METAR describes an airport, not your operating site, so the reported figure narrows the question — it never closes it. Section 107.51(c) is written around the flight visibility <i>you</i> observe from your control station.',
   HORIZ_NOTE: ' And whatever the vertical arithmetic says, you still owe every cloud <b>2,000 ft horizontally</b> — a separate obligation that no amount of descending satisfies.',
   COND_NOTE: ' This is a conservative planning number, not an unconditional maximum: it holds only if that layer is really over your operating area.',
   LAYER_NOTE: ' And all of it holds only if that layer is actually over your operating area — a METAR reports coverage at the <i>airport</i>, which may be miles from where you are standing.',
@@ -4762,11 +4768,11 @@ const EXAM_GEN = {
       if (s.kind === 'clear'){
         explain = `${g.mono(s.lowestCode)} means ${g.CLEAR_MEANING[s.lowestCov]}, so no layer is reported that could be one. A ceiling is the lowest <b>broken</b>, <b>overcast</b>, or <b>vertical visibility</b> layer, and none of those is present.`;
       } else if (s.ceilingFt === null){
-        explain = `A ceiling is the lowest <b>BKN</b>, <b>OVC</b>, or <b>VV</b> layer. This report has only ${s.groups.map(x => g.mono(x.code)).join(' and ')} — few and scattered layers are <i>not</i> ceilings, so there is no ceiling here. That does not make them harmless: § 107.51(d) requires 500 ft below <b>any</b> cloud, so ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)} would still be what limits your altitude.`;
+        explain = `A ceiling is the lowest <b>BKN</b>, <b>OVC</b>, or <b>VV</b> layer. This report has only ${s.groups.map(x => g.mono(x.code)).join(' and ')} — few and scattered layers are <i>not</i> ceilings, so there is no ceiling here. That does not make them harmless: Section 107.51(d) requires 500 ft below <b>any</b> cloud, so ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)} would still be what limits your altitude.`;
       } else if (s.kind === 'vv'){
         explain = `${g.mono(s.ceilingCode)} is a <b>vertical visibility</b> group: the sky is obscured and no distinct layer can be made out, so the observer reports how far up you can see — ${s.ceilingFt} ft. That counts as an indefinite ceiling.`;
       } else if (s.lowestFt < s.ceilingFt){
-        explain = `The ceiling is the <b>lowest</b> broken or overcast layer — ${g.mono(s.ceilingCode)}, ${g.ftAgl(s.ceilingFt)}. ${g.mono(s.lowestCode)} is lower, but ${s.lowestCov === 'FEW' ? 'few' : 'scattered'} layers are not ceilings. Read that carefully both ways: it is not the ceiling, and it is still the layer your cloud clearance is measured from, because § 107.51(d) says <b>any</b> cloud.`;
+        explain = `The ceiling is the <b>lowest</b> broken or overcast layer — ${g.mono(s.ceilingCode)}, ${g.ftAgl(s.ceilingFt)}. ${g.mono(s.lowestCode)} is lower, but ${s.lowestCov === 'FEW' ? 'few' : 'scattered'} layers are not ceilings. Read that carefully both ways: it is not the ceiling, and it is still the layer your cloud clearance is measured from, because Section 107.51(d) says <b>any</b> cloud.`;
       } else {
         explain = `The ceiling is the lowest broken or overcast layer, which here is also the lowest layer in the report: ${g.mono(s.ceilingCode)}, ${g.ftAgl(s.ceilingFt)}.`;
       }
@@ -4790,7 +4796,7 @@ const EXAM_GEN = {
       wrongs.push('None — few and scattered layers are not ceilings, so they impose nothing');
 
       const isTrap = s.ceilingFt !== null && s.lowestFt < s.ceilingFt;
-      let explain = `§ 107.51(d)(1) is written about <b>any</b> cloud, not about the ceiling. The lowest reported layer of any coverage is ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)}, so that is the layer your clearance is measured from.`;
+      let explain = `Section 107.51(d)(1) is written about <b>any</b> cloud, not about the ceiling. The lowest reported layer of any coverage is ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)}, so that is the layer your clearance is measured from.`;
       if (isTrap){
         explain += ` ${g.mono(s.ceilingCode)} is the <i>ceiling</i>, and reaching for it is the single commonest error on this material — a ${s.lowestCov === 'FEW' ? 'few' : 'scattered'} layer counts every bit as much as a ceiling does.`;
       }
@@ -4798,7 +4804,7 @@ const EXAM_GEN = {
 
       const set = g.mc(correct, wrongs, ['Whichever layer is broken or overcast','The highest layer reported']);
       return {metar: r.metar,
-              q: 'Which reported layer sets your cloud-clearance requirement under &sect; 107.51(d)?',
+              q: 'Which reported layer sets your cloud-clearance requirement under Section 107.51(d)?',
               choices: set.choices, answer: set.answer, explain};
     }},
 
@@ -4828,13 +4834,13 @@ const EXAM_GEN = {
 
       let explain;
       if (s.lowestFt === null){
-        explain = `${g.mono(s.lowestCode)} means ${g.CLEAR_MEANING[s.lowestCov]} — nothing is reported low enough to clear, so § 107.51(d) has nothing to bite on in these numbers and the <b>400 ft AGL</b> cap in § 107.51(b) is the only limit left. (The question assumes you are away from any structure; the structure exception in (b) is what would change that.)`;
+        explain = `${g.mono(s.lowestCode)} means ${g.CLEAR_MEANING[s.lowestCov]} — nothing is reported low enough to clear, so Section 107.51(d) has nothing to bite on in these numbers and the <b>400 ft AGL</b> cap in Section 107.51(b) is the only limit left. (The question assumes you are away from any structure; the structure exception in (b) is what would change that.)`;
       } else if (underCloud === 0){
         explain = `${g.mono(s.lowestCode)} sits at ${g.ftAgl(s.lowestFt)}. ${s.lowestFt.toLocaleString()} − 500 leaves nothing above the ground: there is <b>no altitude</b> at which you can fly and still be 500 ft below that layer.`;
       } else if (limit < 400){
         explain = `The lowest layer of any coverage is ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)}. ${s.lowestFt.toLocaleString()} − 500 = <b>${limit.toLocaleString()} ft</b>, which is below the 400 ft cap — so here the <b>cloud</b> governs, not the cap.`;
       } else {
-        explain = `The lowest layer of any coverage is ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)}. ${s.lowestFt.toLocaleString()} − 500 = ${(s.lowestFt - 500).toLocaleString()} ft, well above the § 107.51(b) cap — so the <b>400 ft</b> cap is the binding number, not the cloud.`;
+        explain = `The lowest layer of any coverage is ${g.mono(s.lowestCode)} at ${g.ftAgl(s.lowestFt)}. ${s.lowestFt.toLocaleString()} − 500 = ${(s.lowestFt - 500).toLocaleString()} ft, well above the Section 107.51(b) cap — so the <b>400 ft</b> cap is the binding number, not the cloud.`;
       }
       if (s.ceilingFt !== null && s.lowestFt !== null && s.ceilingFt > s.lowestFt){
         explain += ` Note that ${g.mono(s.ceilingCode)} is the ceiling and is <i>not</i> what limits you: the rule says 500 ft below any cloud.`;
@@ -4870,7 +4876,7 @@ const EXAM_GEN = {
         'Cannot be screened without knowing the ceiling'
       ];
 
-      let explain = `§ 107.51(c) sets the minimum at <b>3 statute miles</b>. This report gives ${g.mono(v.code)} — ${v.text} — so on the reported numbers the minimum is <b>${meets ? 'MET' : 'NOT MET'}</b>.`;
+      let explain = `Section 107.51(c) sets the minimum at <b>3 statute miles</b>. This report gives ${g.mono(v.code)} — ${v.text} — so on the reported numbers the minimum is <b>${meets ? 'MET' : 'NOT MET'}</b>.`;
       if (v.op === 'less than'){
         explain += ` The leading <b>M</b> means <i>less than</i>: the sensor cannot resolve a value that low, which is well under the minimum.`;
       }
@@ -4883,7 +4889,7 @@ const EXAM_GEN = {
 
       const set = g.mc(correct, wrongs, ['MET, provided you stay below 200 ft']);
       return {metar: r.metar,
-              q: 'Screened against &sect; 107.51(c), do the reported numbers meet the visibility minimum?',
+              q: 'Screened against Section 107.51(c), do the reported numbers meet the visibility minimum?',
               choices: set.choices, answer: set.answer, explain};
     }},
 
@@ -4906,7 +4912,7 @@ const EXAM_GEN = {
       let explain = `${g.mono(v.code)} is the <b>prevailing visibility</b> group: ${v.text}. US reports give it in <b>statute miles</b>, abbreviated SM.`;
       if (v.op === 'less than') explain += ' A leading <b>M</b> means <i>less than</i> the value shown; a leading <b>P</b> means more than.';
       if (v.miles < 1) explain += ' Fractions are written as fractions — there is no decimal form in a US METAR.';
-      explain += ` Prevailing visibility is the greatest distance visible through at least half the horizon circle at the field, which is a different thing from the flight visibility § 107.51(c) asks you for.` + g.SITE_NOTE;
+      explain += ` Prevailing visibility is the greatest distance visible through at least half the horizon circle at the field, which is a different thing from the flight visibility Section 107.51(c) asks you for.` + g.SITE_NOTE;
 
       const set = g.mc(correct, wrongs, ['Runway visual range of ' + v.text, 'Vertical visibility of ' + v.text]);
       return {metar: r.metar, q: 'What does the visibility group in this report say?',
@@ -5057,7 +5063,7 @@ const EXAM_GEN = {
 
       let explain;
       if (hot){
-        explain = `${g.mono(t.code)} is <b>${t.t} °C</b> with a ${t.spread} °C spread, and the altimeter reads ${g.mono(r.alt.code)} — ${r.alt.inHg} inHg. Hot air is thin air, and thin air is the density-altitude problem: the propellers move less mass per revolution, so expect a slower climb, shorter flight time, and less margin if something goes wrong mid-flight. Nothing here is a § 107.51 minimum — it is a performance question, and it is the classroom SOP and the aircraft documentation that set limits on it.`;
+        explain = `${g.mono(t.code)} is <b>${t.t} °C</b> with a ${t.spread} °C spread, and the altimeter reads ${g.mono(r.alt.code)} — ${r.alt.inHg} inHg. Hot air is thin air, and thin air is the density-altitude problem: the propellers move less mass per revolution, so expect a slower climb, shorter flight time, and less margin if something goes wrong mid-flight. Nothing here is a Section 107.51 minimum — it is a performance question, and it is the classroom SOP and the aircraft documentation that set limits on it.`;
       } else {
         explain = `${g.mono(t.code)} is <b>${t.t} °C</b> over <b>${t.d} °C</b> — a spread of just ${t.spread} °C, so the air is close to saturated. A small further drop in temperature condenses that moisture: fog, or a layer lowering onto you. Around sunrise the temperature does exactly that, which is why an early launch on numbers like these deserves a second look before you fly and another one at the site.`;
       }
@@ -5190,7 +5196,7 @@ const EXAM_GEN = {
 
         nextBtn.textContent = (idx === queue.length - 1) ? 'See results' : 'Next question';
         nextBtn.style.display = 'inline-block';
-        nextBtn.focus();
+        if (examMode === 'practice') nextBtn.focus();
       });
     });
 
@@ -5203,7 +5209,10 @@ const EXAM_GEN = {
   nextBtn.addEventListener('click', ()=>{
     idx++;
     if (idx >= queue.length) showResults();
-    else renderQuestion();
+    else {
+      renderQuestion();
+      document.getElementById('examBody').scrollIntoView({behavior:'smooth', block:'start'});
+    }
   });
 
   function showResults(){
@@ -5353,7 +5362,7 @@ const EXAM_GEN = {
   document.getElementById('cheatWxTable').innerHTML = wxRows.map(([a,b])=>`<tr><td class="mono">${a}</td><td>${b}</td></tr>`).join('');
 
   const skyRows = [
-    ['SKC / CLR', 0], ['FEW', 20], ['SCT', 45], ['BKN', 75], ['OVC', 100]
+    ['SKC / CLR', 0], ['FEW', 25], ['SCT', 50], ['BKN', 75], ['OVC', 100]
   ];
   /* Built from CLASS_SOP so the printed card can never drift away from the
      limits the trainers actually apply. */
@@ -5410,6 +5419,23 @@ const EXAM_GEN = {
   nav.addEventListener('scroll', update, {passive:true});
   window.addEventListener('resize', update);
   update();
+})();
+
+/* =========================================================================
+   NAV SCROLL-SPY (highlight current section)
+   ========================================================================= */
+(function initScrollSpy(){
+  const navLinks = document.querySelectorAll('#topnav a[href^="#"]');
+  const sections = Array.from(navLinks).map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const link = document.querySelector('#topnav a[href="#' + entry.target.id + '"]');
+      if (!link) return;
+      if (entry.isIntersecting) link.classList.add('active');
+      else link.classList.remove('active');
+    });
+  }, {rootMargin:'-80px 0px -60% 0px'});
+  sections.forEach(s => observer.observe(s));
 })();
 
 /* =========================================================================
@@ -5511,6 +5537,20 @@ const EXAM_GEN = {
           if (b === btn && !isRight) b.classList.add('wrong');
         });
         fb.innerHTML = btn.dataset.fb;
+        if (!isRight) {
+          const retry = document.createElement('button');
+          retry.className = 'sc-retry';
+          retry.textContent = 'Try again';
+          retry.addEventListener('click', () => {
+            block.querySelectorAll('.pill-btn').forEach(b => {
+              b.disabled = false;
+              b.classList.remove('correct', 'wrong');
+            });
+            fb.className = 'sc-feedback';
+            fb.innerHTML = '';
+          });
+          fb.appendChild(retry);
+        }
         fb.className = 'sc-feedback show ' + (isRight ? 'correct' : 'wrong');
       });
     });
@@ -5822,7 +5862,10 @@ const EXAM_GEN = {
     progressEl.textContent = `Pair ${(idx % PAIRS.length) + 1} of ${PAIRS.length}`;
   }
 
-  nextBtn.addEventListener('click', () => renderPair(currentPair + 1));
+  nextBtn.addEventListener('click', () => {
+    renderPair(currentPair + 1);
+    document.getElementById('wcCards').scrollIntoView({behavior:'smooth', block:'start'});
+  });
   renderPair(0);
 })();
 </script>
