@@ -1534,7 +1534,59 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
       <div class="card">
         <h3 style="color:var(--gold-bright);">Sky Coverage</h3>
         <div id="cheatSkyPies"></div>
+        <table style="margin-top:10px;">
+          <tr><td class="mono f-sky">NSC</td><td>No Significant Cloud — clear below 5,000 ft AGL, no CB/TCU (international; US uses SKC/CLR)</td></tr>
+          <tr><td class="mono f-sky">VV<i>nnn</i></td><td>Vertical Visibility — sky obscured, e.g. VV003 = vertical vis 300 ft AGL (indefinite ceiling)</td></tr>
+          <tr><td class="mono f-sky">CB</td><td>Cumulonimbus — appended to a layer, e.g. BKN040<b>CB</b></td></tr>
+          <tr><td class="mono f-sky">TCU</td><td>Towering Cumulus — appended to a layer, e.g. SCT025<b>TCU</b></td></tr>
+        </table>
         <p style="font-size:.8rem; color:var(--text-dim); margin:10px 0 0;">A <b>ceiling</b> is the lowest BKN or OVC layer. But cloud clearance applies to the lowest layer of <i>any</i> coverage.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--gold-bright);">Wind Codes</h3>
+        <table>
+          <tr><td class="mono f-wind">00000KT</td><td>Calm — no measurable wind</td></tr>
+          <tr><td class="mono f-wind">VRB03KT</td><td>Variable direction — wind &lt;6 kt, direction shifts constantly</td></tr>
+          <tr><td class="mono f-wind">21015G25KT</td><td>Gust — sustained 15 kt gusting to 25 kt from 210°</td></tr>
+          <tr><td class="mono f-wind">18010KT 150V210</td><td>Variable <i>range</i> — wind from 180° but varying between 150° and 210°</td></tr>
+        </table>
+        <p style="font-size:.8rem; color:var(--text-dim); margin:10px 0 0;">METAR wind is from <b>true</b> north. Tower/ATIS gives <b>magnetic</b>. Wind of 360° means from the north; 000° appears only in calm (00000KT).</p>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--gold-bright);">Visibility Codes</h3>
+        <table>
+          <tr><td class="mono f-visibility">P6SM</td><td>Greater than 6 statute miles (P = plus)</td></tr>
+          <tr><td class="mono f-visibility">M1/4SM</td><td>Less than ¼ statute mile (M = minus)</td></tr>
+          <tr><td class="mono f-visibility">1 1/2SM</td><td>One and a half statute miles (space separates whole and fraction)</td></tr>
+          <tr><td class="mono f-visibility">R28L/2600FT</td><td>RVR — Runway Visual Range on runway 28 Left: 2,600 ft</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--gold-bright);">Report Modifiers</h3>
+        <table>
+          <tr><td class="mono f-modifier">AUTO</td><td>Fully automated observation — no human observer on duty</td></tr>
+          <tr><td class="mono f-modifier">COR</td><td>Corrected report — replaces the previous observation for this hour</td></tr>
+          <tr><td class="mono f-rmk">AO1</td><td>Automated station <b>without</b> a precipitation discriminator (can't distinguish rain from snow)</td></tr>
+          <tr><td class="mono f-rmk">AO2</td><td>Automated station <b>with</b> a precipitation discriminator (most ASOS sites)</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 style="color:var(--gold-bright);">Common Remark Codes</h3>
+        <table>
+          <tr><td class="mono f-rmk">SLP<i>nnn</i></td><td>Sea-level pressure in millibars (e.g. SLP132 = 1013.2 mb)</td></tr>
+          <tr><td class="mono f-rmk">PK WND dddff/hhmm</td><td>Peak wind — direction and speed / time observed</td></tr>
+          <tr><td class="mono f-rmk">WSHFT hhmm</td><td>Wind shift — time the wind shifted significantly</td></tr>
+          <tr><td class="mono f-rmk">$</td><td>Station needs maintenance — data may be degraded</td></tr>
+          <tr><td class="mono f-rmk">TSNO</td><td>Thunderstorm info not available (sensor missing)</td></tr>
+          <tr><td class="mono f-rmk">PWINO</td><td>Present weather identifier not operating</td></tr>
+          <tr><td class="mono f-rmk">PNO</td><td>Precipitation amount not available</td></tr>
+          <tr><td class="mono f-rmk">FZRANO</td><td>Freezing rain info not available</td></tr>
+          <tr><td class="mono f-rmk">RVRNO</td><td>Runway Visual Range not available</td></tr>
+        </table>
       </div>
 
       <div class="card">
@@ -1543,6 +1595,10 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
           <tr><td class="mono f-reporttype">METAR</td><td>What the weather <b>is</b>. An observation, taken at one field, usually hourly.</td></tr>
           <tr><td class="mono f-reporttype">SPECI</td><td>An unscheduled observation, issued when conditions change significantly between hours.</td></tr>
           <tr><td class="mono">TAF</td><td>What the weather <b>will be</b>. A forecast for a 5-statute-mile radius around the field, issued four times a day.</td></tr>
+          <tr><td class="mono">FM<i>ddhhmm</i></td><td><b>From</b> — conditions change abruptly at the given time.</td></tr>
+          <tr><td class="mono">BECMG <i>hh</i>/<i>hh</i></td><td><b>Becoming</b> — gradual change expected during the period.</td></tr>
+          <tr><td class="mono">TEMPO <i>hh</i>/<i>hh</i></td><td><b>Temporary</b> — conditions fluctuate briefly during the period.</td></tr>
+          <tr><td class="mono">NOSIG</td><td><b>No significant change</b> expected in the next 2 hours.</td></tr>
         </table>
         <p style="font-size:.8rem; color:var(--text-dim); margin:10px 0 0;">§ 107.49 requires the remote PIC to assess <b>local weather conditions</b>; METARs and TAFs are important tools for doing so. A METAR alone will not tell you the front arrives in forty minutes.</p>
       </div>
