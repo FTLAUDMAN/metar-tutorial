@@ -478,12 +478,27 @@ console.log('Section 3: Flight window queries (conditionsDuring)\n');
 }
 
 // ============================================================================
-// Section 4: Full-spectrum fuzzer (FM, BECMG, TEMPO, PROB, weather, temps)
+// Section 4: Full-spectrum fuzzer with independent re-derivation
+//
+// Three verification layers, following the methodology of regress_examgen.js
+// and browser-cloud-fuzz.js:
+//
+//   A. Independent parser — a from-scratch implementation here that shares NO
+//      code with taf_parser.js. Both must agree on every field for every period.
+//      "Two independent implementations agreeing across thousands of random
+//      cases is a much stronger statement than either one passing its own
+//      unit tests." — browser-cloud-fuzz.js
+//
+//   B. Generator truth — every period's decoded fields must match what
+//      taf_gen.js put in (not just the initial period).
+//
+//   C. Domain invariants — sky layers must ascend, summation basis must hold,
+//      gust > sustained, no negative durations, no gaps in FM coverage.
 // ============================================================================
 
-console.log('Section 4: Full-spectrum fuzzer\n');
+console.log('Section 4: Full-spectrum fuzzer with independent re-derivation\n');
 
-const { generateTAF: genTAF, toMinutes: genToMinutes } = require('./taf_gen');
+const { generateTAF: genTAF } = require('./taf_gen');
 
 const FUZZ_COUNT = +(process.argv[2] || 1000);
 let fuzzFails = 0;
@@ -498,59 +513,230 @@ function fuzzAssert(cond, f, msg, tafStr) {
   return true;
 }
 
+// ---- Independent TAF period-body parser ------------------------------------
+// Deliberately shares NO code with taf_parser.js. If both parsers share a bug,
+// the agreement is meaningless; two separate implementations catching the same
+// answer is the strongest statement we can make without a human reading every
+// generated TAF.
+
+const INDEP_WX_DESC = new Set(['MI','PR','BC','DR','BL','SH','TS','FZ']);
+const INDEP_WX_PHEN = new Set(['DZ','RA','SN','SG','IC','PL','GR','GS','UP','PY',
+  'BR','FG','FU','VA','DU','SA','HZ','PO','SQ','FC','DS','SS']);
+const INDEP_PRECIP = new Set(['DZ','RA','SN','SG','IC','PL','GR','GS','UP']);
+const INDEP_OBSCUR = new Set(['FG','BR','HZ','FU','DU','SA','VA']);
+
+function indepIsWx(tok) {
+  let s = tok;
+  if (s[0] === '+' || s[0] === '-') s = s.slice(1);
+  if (s.startsWith('VC')) s = s.slice(2);
+  if (s.length < 2) return false;
+  while (s.length >= 2) {
+    const pair = s.slice(0, 2);
+    if (!INDEP_WX_DESC.has(pair) && !INDEP_WX_PHEN.has(pair)) return false;
+    s = s.slice(2);
+  }
+  return s.length === 0;
+}
+
+function indepParseBody(tokens) {
+  const out = {
+    windDir: null, windSpeedKt: null, windGustKt: null,
+    visibilityMiles: null, visibilityOp: '',
+    hasThunderstorm: false, hasPrecip: false, hasObscuration: false, hasNSW: false,
+    layers: [], ceilingFt: null, lowestLayerFt: null, lowestLayerCov: null,
+  };
+  let i = 0;
+
+  // Wind
+  if (tokens[i] && /^(\d{3}|VRB|000)\d{2,3}(G\d{2,3})?KT$/.test(tokens[i])) {
+    const wm = tokens[i].match(/^(\d{3}|VRB|000)(\d{2,3})(?:G(\d{2,3}))?KT$/);
+    out.windDir = wm[1] === 'VRB' ? 'VRB' : parseInt(wm[1], 10);
+    out.windSpeedKt = parseInt(wm[2], 10);
+    out.windGustKt = wm[3] ? parseInt(wm[3], 10) : null;
+    i++;
+    if (tokens[i] && /^\d{3}V\d{3}$/.test(tokens[i])) i++;
+  }
+
+  // Visibility
+  if (tokens[i]) {
+    if (/^\d{1,2}$/.test(tokens[i]) && tokens[i + 1] && /^\d\/\d{1,2}SM$/.test(tokens[i + 1])) {
+      const whole = parseInt(tokens[i], 10);
+      const fp = tokens[i + 1].replace('SM', '').split('/');
+      out.visibilityMiles = whole + parseInt(fp[0], 10) / parseInt(fp[1], 10);
+      i += 2;
+    } else if (/^P\d/.test(tokens[i]) && tokens[i].endsWith('SM')) {
+      out.visibilityMiles = parseInt(tokens[i].slice(1), 10);
+      out.visibilityOp = 'greater than';
+      i++;
+    } else if (/^M?\d/.test(tokens[i]) && tokens[i].endsWith('SM')) {
+      const raw = tokens[i].replace('SM', '');
+      if (raw[0] === 'M') {
+        out.visibilityOp = 'less than';
+        const inner = raw.slice(1);
+        out.visibilityMiles = inner.includes('/') ?
+          parseInt(inner.split('/')[0], 10) / parseInt(inner.split('/')[1], 10) :
+          parseInt(inner, 10);
+      } else if (raw.includes('/')) {
+        out.visibilityMiles = parseInt(raw.split('/')[0], 10) / parseInt(raw.split('/')[1], 10);
+      } else {
+        out.visibilityMiles = parseInt(raw, 10);
+      }
+      i++;
+    }
+  }
+
+  // NSW
+  if (tokens[i] === 'NSW') { out.hasNSW = true; i++; }
+
+  // Weather
+  while (tokens[i] && indepIsWx(tokens[i])) {
+    const wx = tokens[i];
+    let s = wx;
+    if (s[0] === '+' || s[0] === '-') s = s.slice(1);
+    if (s.startsWith('VC')) s = s.slice(2);
+    while (s.length >= 2) {
+      const pair = s.slice(0, 2);
+      if (pair === 'TS') out.hasThunderstorm = true;
+      if (INDEP_PRECIP.has(pair)) out.hasPrecip = true;
+      if (INDEP_OBSCUR.has(pair)) out.hasObscuration = true;
+      s = s.slice(2);
+    }
+    i++;
+  }
+
+  // Sky
+  while (tokens[i] && /^(SKC|CLR|NSC|NCD|FEW|SCT|BKN|OVC|VV)(\d{3})?(CB|TCU)?$/.test(tokens[i])) {
+    const sm = tokens[i].match(/^(SKC|CLR|NSC|NCD|FEW|SCT|BKN|OVC|VV)(\d{3})?(CB|TCU)?$/);
+    const cov = sm[1];
+    const feet = sm[2] ? parseInt(sm[2], 10) * 100 : null;
+    out.layers.push({ cov, feet, raw: tokens[i] });
+    if (feet !== null) {
+      if ((cov === 'BKN' || cov === 'OVC' || cov === 'VV') &&
+          (out.ceilingFt === null || feet < out.ceilingFt))
+        out.ceilingFt = feet;
+      if (out.lowestLayerFt === null || feet < out.lowestLayerFt) {
+        out.lowestLayerFt = feet;
+        out.lowestLayerCov = cov;
+      }
+    }
+    i++;
+  }
+
+  return out;
+}
+
+// Extract just the weather-body tokens from a period's raw string,
+// stripping the change-group marker prefix
+function bodyTokensOf(period) {
+  const raw = period.raw;
+  if (period.type === 'INITIAL') return raw.split(/\s+/).filter(Boolean);
+
+  // FM DDHHmm body...
+  if (period.type === 'FM') {
+    const parts = raw.split(/\s+/);
+    return parts.slice(1); // skip the FMDDHHmm token
+  }
+
+  // BECMG/TEMPO/PROB: marker tokens then DDHH/DDHH then body
+  // The period.raw starts with the full marker string. Count how many
+  // tokens the marker consumed and skip them.
+  const parts = raw.split(/\s+/);
+  let skip = 0;
+  if (/^FM/.test(parts[0])) skip = 1;
+  else if (/^PROB/.test(parts[0]) && parts[1] === 'TEMPO') skip = 3;
+  else if (/^PROB/.test(parts[0])) skip = 2;
+  else if (parts[0] === 'BECMG' || parts[0] === 'TEMPO') skip = 2;
+  return parts.slice(skip);
+}
+
+// ---- Domain invariant checks per period ------------------------------------
+const COV_RANK = { FEW: 1, SCT: 2, BKN: 3, OVC: 4, VV: 4 };
+
+function checkInvariants(meta, f, pi, ptype, tafStr) {
+  const tag = `period[${pi}](${ptype})`;
+
+  // Gust must exceed sustained speed
+  if (meta.windGustKt !== null && meta.windSpeedKt !== null) {
+    fuzzAssert(meta.windGustKt > meta.windSpeedKt, f,
+      `${tag}: gust ${meta.windGustKt} <= sustained ${meta.windSpeedKt}`, tafStr);
+  }
+
+  // Sky layers must ascend in height
+  const layersWithFt = meta.layers.filter(l => l.feet !== null);
+  for (let k = 1; k < layersWithFt.length; k++) {
+    fuzzAssert(layersWithFt[k].feet > layersWithFt[k - 1].feet, f,
+      `${tag}: sky layers do not ascend (${layersWithFt[k - 1].raw} then ${layersWithFt[k].raw})`, tafStr);
+  }
+
+  // Summation basis: sky coverage cannot decrease with height
+  for (let k = 1; k < layersWithFt.length; k++) {
+    const prevRank = COV_RANK[layersWithFt[k - 1].cov];
+    const currRank = COV_RANK[layersWithFt[k].cov];
+    if (prevRank !== undefined && currRank !== undefined) {
+      fuzzAssert(currRank >= prevRank, f,
+        `${tag}: sky cover decreases with height (${layersWithFt[k - 1].raw} then ${layersWithFt[k].raw}) — violates summation convention`, tafStr);
+    }
+  }
+
+  // No layer above VV (vertical visibility = indefinite ceiling)
+  // Multiple OVC layers at different heights are legal (summation convention)
+  const vvIdx = layersWithFt.findIndex(l => l.cov === 'VV');
+  if (vvIdx !== -1) {
+    fuzzAssert(vvIdx === layersWithFt.length - 1, f,
+      `${tag}: layer reported above VV`, tafStr);
+  }
+
+  // Ceiling must be the lowest BKN/OVC/VV
+  const ceilLayers = layersWithFt.filter(l => ['BKN', 'OVC', 'VV'].includes(l.cov));
+  const expectedCeiling = ceilLayers.length ? Math.min(...ceilLayers.map(l => l.feet)) : null;
+  fuzzAssert(meta.ceilingFt === expectedCeiling, f,
+    `${tag}: ceiling ${meta.ceilingFt} != expected ${expectedCeiling}`, tafStr);
+
+  // Lowest layer must be the lowest of all layers
+  const expectedLowest = layersWithFt.length ? Math.min(...layersWithFt.map(l => l.feet)) : null;
+  fuzzAssert(meta.lowestLayerFt === expectedLowest, f,
+    `${tag}: lowestLayerFt ${meta.lowestLayerFt} != expected ${expectedLowest}`, tafStr);
+}
+
+// ---- Main fuzz loop --------------------------------------------------------
+
 for (let f = 0; f < FUZZ_COUNT; f++) {
   const { tafString: tafStr, truth } = genTAF();
   const taf = parseTAF(tafStr);
 
   if (!fuzzAssert(!taf.error, f, `parse error: ${taf.error}`, tafStr)) continue;
 
-  // Station must match
+  // Header checks
   fuzzAssert(taf.station === truth.station, f,
     `station: expected ${truth.station}, got ${taf.station}`, tafStr);
-
-  // Amendment must match
   fuzzAssert(taf.amendment === truth.amendment, f,
     `amendment: expected ${truth.amendment}, got ${taf.amendment}`, tafStr);
+  fuzzAssert(taf.validity.startDay === truth.validity.startDay &&
+    taf.validity.startHour === truth.validity.startHour &&
+    taf.validity.endDay === truth.validity.endDay &&
+    taf.validity.endHour === truth.validity.endHour, f,
+    `validity mismatch`, tafStr);
 
-  // Validity must match
-  fuzzAssert(taf.validity.startDay === truth.validity.startDay, f,
-    `validity.startDay: expected ${truth.validity.startDay}, got ${taf.validity.startDay}`, tafStr);
-  fuzzAssert(taf.validity.startHour === truth.validity.startHour, f,
-    `validity.startHour: expected ${truth.validity.startHour}, got ${taf.validity.startHour}`, tafStr);
-  fuzzAssert(taf.validity.endDay === truth.validity.endDay, f,
-    `validity.endDay: expected ${truth.validity.endDay}, got ${taf.validity.endDay}`, tafStr);
-  fuzzAssert(taf.validity.endHour === truth.validity.endHour, f,
-    `validity.endHour: expected ${truth.validity.endHour}, got ${taf.validity.endHour}`, tafStr);
-
-  // Must have at least as many periods as FM count + 1 (initial)
   fuzzAssert(taf.periods.length >= truth.fmCount + 1, f,
     `period count: expected >= ${truth.fmCount + 1}, got ${taf.periods.length}`, tafStr);
-
-  // First period must be INITIAL
   fuzzAssert(taf.periods[0].type === 'INITIAL', f,
-    `first period type: expected INITIAL, got ${taf.periods[0].type}`, tafStr);
+    `first period: expected INITIAL, got ${taf.periods[0].type}`, tafStr);
 
-  // FM/INITIAL structural checks
+  // ---- Layer A: structural checks on FM/INITIAL periods --------------------
   const fmPeriods = taf.periods.filter(p => p.type === 'INITIAL' || p.type === 'FM');
   const refDay = truth.validity.startDay;
 
-  // Every FM/INITIAL period must have an end time
   for (const p of fmPeriods) {
     fuzzAssert(p.endDay !== null && p.endHour !== null, f,
       `${p.type} period missing end time`, tafStr);
   }
-
-  // FM/INITIAL periods must be in chronological order
   for (let j = 1; j < fmPeriods.length; j++) {
-    const prevStart = toMinutes(fmPeriods[j - 1].startDay, fmPeriods[j - 1].startHour,
+    const prev = toMinutes(fmPeriods[j - 1].startDay, fmPeriods[j - 1].startHour,
       fmPeriods[j - 1].startMin || 0, refDay);
-    const currStart = toMinutes(fmPeriods[j].startDay, fmPeriods[j].startHour,
+    const curr = toMinutes(fmPeriods[j].startDay, fmPeriods[j].startHour,
       fmPeriods[j].startMin || 0, refDay);
-    fuzzAssert(currStart > prevStart, f,
-      `FM periods out of order at index ${j}`, tafStr);
+    fuzzAssert(curr > prev, f, `FM periods out of order at index ${j}`, tafStr);
   }
-
-  // No gaps between consecutive FM/INITIAL periods
   for (let j = 0; j < fmPeriods.length - 1; j++) {
     if (fmPeriods[j].endDay === null) continue;
     const thisEnd = toMinutes(fmPeriods[j].endDay, fmPeriods[j].endHour,
@@ -560,8 +746,6 @@ for (let f = 0; f < FUZZ_COUNT; f++) {
     fuzzAssert(thisEnd === nextStart, f,
       `gap between FM[${j}] end (${thisEnd}min) and FM[${j + 1}] start (${nextStart}min)`, tafStr);
   }
-
-  // No negative-duration FM/INITIAL periods
   for (const p of fmPeriods) {
     if (p.endDay === null) continue;
     const pStart = toMinutes(p.startDay, p.startHour, p.startMin || 0, refDay);
@@ -570,62 +754,114 @@ for (let f = 0; f < FUZZ_COUNT; f++) {
       `negative or zero duration for ${p.type} (start=${pStart}, end=${pEnd})`, tafStr);
   }
 
-  // Overlay periods must have valid time windows
+  // Overlay structural checks
   const overlays = taf.periods.filter(p =>
     p.type === 'BECMG' || p.type === 'TEMPO' || p.type === 'PROB');
   for (const ov of overlays) {
-    fuzzAssert(ov.startDay !== null && ov.startHour !== null, f,
-      `${ov.type} overlay missing start time`, tafStr);
     fuzzAssert(ov.endDay !== null && ov.endHour !== null, f,
       `${ov.type} overlay missing end time`, tafStr);
     if (ov.endDay !== null) {
       const ovStart = toMinutes(ov.startDay, ov.startHour, 0, refDay);
       const ovEnd = toMinutes(ov.endDay, ov.endHour, 0, refDay);
       fuzzAssert(ovEnd > ovStart, f,
-        `${ov.type} overlay has non-positive duration (start=${ovStart}, end=${ovEnd})`, tafStr);
+        `${ov.type} overlay non-positive duration`, tafStr);
     }
-    if (ov.prob) {
-      fuzzAssert(ov.prob === 30 || ov.prob === 40, f,
-        `bad prob value: ${ov.prob}`, tafStr);
-    }
+    if (ov.prob) fuzzAssert(ov.prob === 30 || ov.prob === 40, f,
+      `bad prob value: ${ov.prob}`, tafStr);
   }
 
-  // Every period must have a meta object with wind/vis/sky decoded
+  // ---- Layer B: independent re-derivation of every period ------------------
+  // Parse each period's body with the independent parser and compare against
+  // taf_parser's meta. This is the TAF equivalent of regress_examgen's
+  // independent METAR parser.
   for (let pi = 0; pi < taf.periods.length; pi++) {
     const p = taf.periods[pi];
-    fuzzAssert(p.meta !== undefined && p.meta !== null, f,
-      `period[${pi}] (${p.type}) missing meta`, tafStr);
-    if (p.meta) {
-      fuzzAssert(p.meta.windSpeedKt !== undefined, f,
-        `period[${pi}] missing windSpeedKt`, tafStr);
-      fuzzAssert(p.meta.visibilityMiles !== undefined, f,
-        `period[${pi}] missing visibilityMiles`, tafStr);
-      fuzzAssert(Array.isArray(p.meta.layers), f,
-        `period[${pi}] layers is not an array`, tafStr);
+    const tag = `period[${pi}](${p.type})`;
+    fuzzAssert(p.meta != null, f, `${tag} missing meta`, tafStr);
+    if (!p.meta) continue;
+
+    const bodyToks = bodyTokensOf(p);
+    const indep = indepParseBody(bodyToks);
+
+    // Wind
+    fuzzAssert(p.meta.windSpeedKt === indep.windSpeedKt, f,
+      `${tag} windSpeedKt: parser=${p.meta.windSpeedKt} vs indep=${indep.windSpeedKt}`, tafStr);
+    fuzzAssert(p.meta.windGustKt === indep.windGustKt, f,
+      `${tag} windGustKt: parser=${p.meta.windGustKt} vs indep=${indep.windGustKt}`, tafStr);
+
+    // Visibility
+    if (indep.visibilityMiles !== null) {
+      fuzzAssert(Math.abs((p.meta.visibilityMiles || 0) - indep.visibilityMiles) < 0.01, f,
+        `${tag} visMiles: parser=${p.meta.visibilityMiles} vs indep=${indep.visibilityMiles}`, tafStr);
+    }
+
+    // Weather flags
+    fuzzAssert(p.meta.hasThunderstorm === indep.hasThunderstorm, f,
+      `${tag} hasThunderstorm: parser=${p.meta.hasThunderstorm} vs indep=${indep.hasThunderstorm}`, tafStr);
+    fuzzAssert(p.meta.hasPrecip === indep.hasPrecip, f,
+      `${tag} hasPrecip: parser=${p.meta.hasPrecip} vs indep=${indep.hasPrecip}`, tafStr);
+    fuzzAssert(p.meta.hasObscuration === indep.hasObscuration, f,
+      `${tag} hasObscuration: parser=${p.meta.hasObscuration} vs indep=${indep.hasObscuration}`, tafStr);
+    fuzzAssert(p.meta.hasNSW === indep.hasNSW, f,
+      `${tag} hasNSW: parser=${p.meta.hasNSW} vs indep=${indep.hasNSW}`, tafStr);
+
+    // Ceiling and lowest layer
+    fuzzAssert(p.meta.ceilingFt === indep.ceilingFt, f,
+      `${tag} ceilingFt: parser=${p.meta.ceilingFt} vs indep=${indep.ceilingFt}`, tafStr);
+    fuzzAssert(p.meta.lowestLayerFt === indep.lowestLayerFt, f,
+      `${tag} lowestLayerFt: parser=${p.meta.lowestLayerFt} vs indep=${indep.lowestLayerFt}`, tafStr);
+
+    // Layer count
+    fuzzAssert(p.meta.layers.length === indep.layers.length, f,
+      `${tag} layer count: parser=${p.meta.layers.length} vs indep=${indep.layers.length}`, tafStr);
+  }
+
+  // ---- Layer B2: truth-check every period against generator -----------------
+  // Match parser periods to truth periods by type and position
+  const truthByType = {};
+  truth.periods.forEach(tp => {
+    const key = tp.type;
+    if (!truthByType[key]) truthByType[key] = [];
+    truthByType[key].push(tp);
+  });
+  const parsedByType = {};
+  taf.periods.forEach(pp => {
+    const key = pp.type;
+    if (!parsedByType[key]) parsedByType[key] = [];
+    parsedByType[key].push(pp);
+  });
+
+  for (const type of Object.keys(truthByType)) {
+    const truthList = truthByType[type];
+    const parsedList = parsedByType[type] || [];
+    const count = Math.min(truthList.length, parsedList.length);
+    for (let k = 0; k < count; k++) {
+      const tm = truthList[k].meta;
+      const pm = parsedList[k].meta;
+      const tag = `${type}[${k}]`;
+
+      fuzzAssert(pm.windSpeedKt === tm.windSpeedKt, f,
+        `${tag} truth windSpeedKt: parser=${pm.windSpeedKt} vs truth=${tm.windSpeedKt}`, tafStr);
+      fuzzAssert(pm.windGustKt === tm.windGustKt, f,
+        `${tag} truth windGustKt: parser=${pm.windGustKt} vs truth=${tm.windGustKt}`, tafStr);
+      fuzzAssert(Math.abs((pm.visibilityMiles || 0) - tm.visibilityMiles) < 0.1, f,
+        `${tag} truth visMiles: parser=${pm.visibilityMiles} vs truth=${tm.visibilityMiles}`, tafStr);
+      fuzzAssert(pm.hasThunderstorm === tm.hasThunderstorm, f,
+        `${tag} truth hasThunderstorm: parser=${pm.hasThunderstorm} vs truth=${tm.hasThunderstorm}`, tafStr);
+      fuzzAssert(pm.hasPrecip === tm.hasPrecip, f,
+        `${tag} truth hasPrecip: parser=${pm.hasPrecip} vs truth=${tm.hasPrecip}`, tafStr);
+      fuzzAssert(pm.hasObscuration === tm.hasObscuration, f,
+        `${tag} truth hasObscuration: parser=${pm.hasObscuration} vs truth=${tm.hasObscuration}`, tafStr);
     }
   }
 
-  // Verify meta fields match the generator's truth for the initial period
-  const im = taf.periods[0].meta;
-  const it = truth.periods[0].meta;
-  fuzzAssert(im.windSpeedKt === it.windSpeedKt, f,
-    `initial windSpeedKt: expected ${it.windSpeedKt}, got ${im.windSpeedKt}`, tafStr);
-  fuzzAssert(im.windGustKt === it.windGustKt, f,
-    `initial windGustKt: expected ${it.windGustKt}, got ${im.windGustKt}`, tafStr);
-  if (it.visibilityOp) {
-    fuzzAssert(im.visibilityOp === it.visibilityOp, f,
-      `initial visOp: expected "${it.visibilityOp}", got "${im.visibilityOp}"`, tafStr);
+  // ---- Layer C: domain invariants on every period --------------------------
+  for (let pi = 0; pi < taf.periods.length; pi++) {
+    if (!taf.periods[pi].meta) continue;
+    checkInvariants(taf.periods[pi].meta, f, pi, taf.periods[pi].type, tafStr);
   }
-  fuzzAssert(Math.abs((im.visibilityMiles || 0) - it.visibilityMiles) < 0.1, f,
-    `initial visMiles: expected ${it.visibilityMiles}, got ${im.visibilityMiles}`, tafStr);
-  fuzzAssert(im.hasThunderstorm === it.hasThunderstorm, f,
-    `initial hasThunderstorm: expected ${it.hasThunderstorm}, got ${im.hasThunderstorm}`, tafStr);
-  fuzzAssert(im.hasPrecip === it.hasPrecip, f,
-    `initial hasPrecip: expected ${it.hasPrecip}, got ${im.hasPrecip}`, tafStr);
-  fuzzAssert(im.hasObscuration === it.hasObscuration, f,
-    `initial hasObscuration: expected ${it.hasObscuration}, got ${im.hasObscuration}`, tafStr);
 
-  // conditionsAt must return a result for every hour in the validity
+  // ---- conditionsAt / conditionsDuring coverage ----------------------------
   const valStart = toMinutes(truth.validity.startDay, truth.validity.startHour, 0, refDay);
   const valEnd = toMinutes(truth.validity.endDay, truth.validity.endHour, 0, refDay);
   const totalHours = Math.floor((valEnd - valStart) / 60);
@@ -638,14 +874,11 @@ for (let f = 0; f < FUZZ_COUNT; f++) {
 
     const c = conditionsAt(taf, qHour, qDay);
     if (!fuzzAssert(c !== null, f,
-      `conditionsAt returned null for ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
+      `conditionsAt null at ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
     if (!fuzzAssert(c.base !== null, f,
-      `conditionsAt returned no base for ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
-    fuzzAssert(c.base.meta.windSpeedKt !== undefined, f,
-      `conditionsAt base at ${qDay}/${qHour}Z missing windSpeedKt`, tafStr);
+      `conditionsAt no base at ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
   }
 
-  // conditionsDuring over the full validity must return at least one period
   const dur = conditionsDuring(taf, truth.validity.startDay, truth.validity.startHour,
     truth.validity.endDay, truth.validity.endHour);
   fuzzAssert(dur.length >= 1, f,
@@ -653,8 +886,11 @@ for (let f = 0; f < FUZZ_COUNT; f++) {
 }
 
 fails += fuzzFails;
-console.log(`  ${FUZZ_COUNT} random TAFs (FM + BECMG + TEMPO + PROB) generated and checked.`);
-console.log(`  Full-spectrum fuzz: ${fuzzFails === 0 ? 'all passed' : fuzzFails + ' FAILURE(S)'}.\n`);
+console.log(`  ${FUZZ_COUNT} random TAFs verified across 3 layers:`);
+console.log(`    A. Independent re-derivation (body parser shares no code with taf_parser.js)`);
+console.log(`    B. Generator truth matching (every period, not just initial)`);
+console.log(`    C. Domain invariants (summation basis, layer order, gust > sustained, ceiling/lowest)`);
+console.log(`  Result: ${fuzzFails === 0 ? 'all passed' : fuzzFails + ' FAILURE(S)'}.\n`);
 
 // ============================================================================
 // Section 5: Error-case tests

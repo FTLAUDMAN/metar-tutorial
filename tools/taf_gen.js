@@ -354,7 +354,10 @@ function generateTAF(opts) {
     amendment,
     issued: { day: issueDay, hour: issueHour, min: issueMin },
     validity: { startDay, startHour, endDay, endHour },
-    periods: buildTruthPeriods(periods, { startDay, startHour, endDay, endHour }),
+    periods: buildTruthPeriods(
+      [periods[0], ...fmOnly, ...overlays],
+      { startDay, startHour, endDay, endHour }
+    ),
     fmCount: fmOnly.length,
     overlayCount: overlays.length,
   };
