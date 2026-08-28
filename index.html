@@ -948,9 +948,12 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 .verdict-pill.met{background:#1b3a2a; color:#5ff29b; border:1px solid #5ff29b66;}
 .verdict-pill.notmet{background:#3a1b1b; color:#ff8a8a; border:1px solid #ff8a8a66;}
 .verdict-pill.unknown{background:#2a3242; color:var(--text-dim); border:1px solid var(--border);}
+.skip-link{position:absolute;top:-100%;left:16px;padding:8px 16px;background:var(--gold-bright);color:#000;font-weight:700;z-index:10000;border-radius:4px;text-decoration:none;}
+.skip-link:focus{top:8px;}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to content</a>
 
 <nav id="topnav" aria-label="Section navigation">
   <div class="navwrap">
@@ -970,6 +973,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
   </div>
 </nav>
 
+<main id="main-content">
 <header class="masthead">
   <div class="wrap">
     <div class="logo-mark" role="img" aria-label="Bentonville West High School Wolverines logo"></div>
@@ -1037,7 +1041,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <p class="sub">Before every drone flight, the FAA requires you to know exactly what the sky is doing. A METAR is the pilot's shorthand for current weather — learn to read it, and you'll read the sky like a professional remote pilot.</p>
 
     <div class="callout">
-      <b>What is a METAR?</b> METAR stands for <i>Meteorological Aerodrome Report</i> — a routine surface weather observation issued about once an hour at airports around the world. It packs wind, visibility, clouds, temperature, and pressure into one dense, coded line of text.
+      <b>What is a METAR?</b> METAR stands for <i>Aviation Routine Weather Report</i> (the FAA term; internationally, <i>Meteorological Aerodrome Report</i>) — a routine surface weather observation issued about once an hour at airports around the world. It packs wind, visibility, clouds, temperature, and pressure into one dense, coded line of text.
       <br><br>
       <b>Why does a drone pilot care?</b> Under <b>14 CFR § 107.49</b>, the Remote Pilot in Command must assess <b>local weather conditions</b> before every flight and may not operate unless conditions allow safe flight. Under <b>14 CFR § 107.51</b>, minimum flight visibility is <b>3 statute miles</b> and you must stay <b>500 ft below</b> and <b>2,000 ft horizontally</b> from any cloud. A METAR is the fastest standardized way to see what the atmosphere is doing before you drive out to the field.
       <br><br>
@@ -1264,6 +1268,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     <!-- Decode -->
     <div class="tabpanel active" id="panel-decode">
       <label for="decodeInput" style="display:block; font-size:.8rem; color:var(--text-dim); margin-bottom:8px;">Paste or type a METAR:</label>
+      <p style="font-size:.75rem; color:var(--text-dim); margin:0 0 8px;">This decoder handles the US METAR format. Some international-only fields (CAVOK, MPS winds) are not supported.</p>
       <textarea id="decodeInput" rows="2">METAR KGGG 161753Z AUTO 14021G26KT 3/4SM +TSRA BR BKN008 OVC012CB 18/17 A2970 RMK AO2 PRESFR</textarea>
       <div class="btn-row" style="margin-top:12px;">
         <button class="btn primary" id="decodeBtn">Decode ▶</button>
@@ -1661,6 +1666,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
     </div>
   </div>
 </section>
+</main>
 
 <footer>
   <div class="logo-mark" role="img" aria-label="Bentonville West High School Wolverines logo"></div>
@@ -2167,7 +2173,9 @@ function verifyPromptHtml(focus){
 function reportedMinimumsStatus(meta){
   const fails = [];
   let unknown = false;
-  if (meta.visibilityMiles === null){
+  if (meta.hasUnparsedPreRmk){
+    unknown = true;
+  } else if (meta.visibilityMiles === null){
     unknown = true;
   } else if (meta.visibilityOp === 'less than' || meta.visibilityMiles < 3){
     fails.push('the reported visibility is below 3 SM');
@@ -2381,7 +2389,7 @@ function VIS_TIP(miles, op){
   } else {
     t += `This report clears 3 SM, but that is evidence, not permission — you still owe the sky a look. `;
   }
-  t += `If the METAR says 10 SM and you cannot see your aircraft through the haze at 1,500 ft, the legal number is the one you can see.</p>`;
+  t += `Two independent checks apply: (1)&nbsp;<b>flight visibility</b> (§&nbsp;107.51) — can you see and identify prominent objects at least 3&nbsp;SM from your control station? (2)&nbsp;<b>visual line of sight</b> (§&nbsp;107.31) — can you see the aircraft well enough to know its attitude, altitude, and direction? A hazy day can pass one and fail the other.</p>`;
   return t;
 }
 
@@ -2398,7 +2406,7 @@ function parseMETAR(rawInput){
     lowestLayerFt:null, lowestLayerCov:null, windSpeedKt:null, windGustKt:null,
     hasThunderstorm:false, tsVicinity:false, tsOverhead:false,
     hasObscuration:false, hasPrecip:false,
-    tempC:null, spread:null, station:null};
+    tempC:null, spread:null, station:null, hasUnparsedPreRmk:false};
 
   if (tokens[i] && /^(METAR|SPECI)$/.test(tokens[i])){
     fields.push({type:'reporttype', raw:tokens[i], label:'Report Type',
@@ -2577,7 +2585,7 @@ function parseMETAR(rawInput){
     fields.push({type:'temp', raw:t, label:'Temperature / Dew Point',
       html:`<p><b>${t}</b> — Temperature <b>${temp}°C</b>, dew point <b>${dew}°C</b>. Both in Celsius; an "M" prefix means negative.</p>` +
         (spread<=3
-          ? `<p class="tip">Spread is only ${spread}°C — the air is close to saturated. Fog or a lowering ceiling is likely, and it can happen fast around sunrise as the temperature falls to meet the dew point.</p>`
+          ? `<p class="tip">Spread is only ${spread}°C — the air is close to saturated. Fog or a lowering ceiling may develop, especially around sunrise as the temperature falls toward the dew point.</p>`
           : `<p>Spread of ${spread}°C.</p>`) +
         (temp>=30
           ? `<p class="tip">At ${temp}°C the air is thin. High density altitude means less lift per propeller revolution: expect a slower climb, shorter endurance, and less margin if something goes wrong.` +
@@ -2632,6 +2640,7 @@ function parseMETAR(rawInput){
   } else if (i < tokens.length){
     const leftover = tokens.slice(i).join(' ');
     fields.push({type:'unknown', raw:leftover, label:'Unknown / Unparsed', html:`<p><b>${leftover}</b> — could not be parsed by this decoder.</p>`});
+    meta.hasUnparsedPreRmk = true;
   }
 
   return {fields, meta};
@@ -2791,7 +2800,7 @@ const WALKTHROUGH_EXAMPLES = [
     verdict:'caution',
     scaffold:{auto:false, predict:false, color:false, explain:true},
     scaffoldNote:'Color coding off — read the raw code',
-    summary:'<b>Reported minimums: MET</b> — 5 SM clears the visibility minimum, and the 900-ft overcast gives a conservative under-cloud planning limit of exactly <b>400 ft AGL</b> if that layer represents your operating site, which happens to be the Part 107 cap anyway. The numbers pass with precisely zero margin. <b>GO with restrictions</b> at best: look at the temp/dew spread — 2 °C, with mist already present. This sky is one degree of cooling away from becoming fog, and you still owe every cloud 2,000 ft of horizontal clearance. A cautious pilot waits.'
+    summary:'<b>Reported minimums: MET</b> — 5 SM clears the visibility minimum, and the 900-ft overcast gives a conservative under-cloud planning limit of exactly <b>400 ft AGL</b> if that layer represents your operating site, which happens to be the Part 107 cap anyway. The numbers pass with precisely zero margin. <b>GO with restrictions</b> at best: look at the temp/dew spread — 2 °C, with mist already present. With the air nearly saturated, fog or low cloud may develop if cooling continues, and you still owe every cloud 2,000 ft of horizontal clearance. A cautious pilot waits.'
   },
   {
     title:'Read It Cold',
@@ -3123,6 +3132,12 @@ const BUILDER_CHALLENGES = [
     const wxBare = wxParts.map(w => w.replace(/^[+-]/, ''));
     if (wxBare.includes('BR') && wxBare.includes('FG'))
       warnings.push('Mist (BR) and fog (FG) are the same phenomenon at different visibilities. A real METAR reports one or the other, never both.');
+    const parseFrac = s => { const [n,d] = s.split('/'); return parseInt(n)/parseInt(d); };
+    const visMiles = visVal === 'P6' ? 7 : visVal.includes(' ') ? parseInt(visVal) + parseFrac(visVal.split(' ')[1]) : visVal.includes('/') ? parseFrac(visVal) : parseFloat(visVal);
+    if (wxBare.includes('BR') && visMiles < 5/8)
+      warnings.push('BR (mist) is reported when visibility is 5/8 SM or more. Below that threshold, use <span class="mono">FG</span> (fog).');
+    if (wxBare.includes('FG') && visMiles >= 5/8)
+      warnings.push('FG (fog) is reported when visibility is below 5/8 SM. At this visibility, use <span class="mono">BR</span> (mist).');
     if (wxBare.includes('RA') && wxBare.includes('SN') && !wxParts.some(w => /RASN|SNRA/.test(w)))
       warnings.push('Rain and snow falling simultaneously is encoded as a single group (e.g., <span class="mono">RASN</span>), not as two separate weather groups.');
     const wx = wxParts.join(' ');
@@ -3299,7 +3314,7 @@ function liveErrorHtml(kind, code){
   input.addEventListener('keydown', e=>{ if (e.key==='Enter'){ fetchLive(input.value); }});
 
   async function fetchLive(codeRaw){
-    const code = (codeRaw || '').trim().toUpperCase().slice(0,4);
+    const code = (codeRaw || '').trim().toUpperCase();
     if (!/^[A-Z0-9]{4}$/.test(code)){
       output.innerHTML = `<p style="color:#ff8a8a; margin-top:14px;">Station codes are exactly four characters — try <span class="mono">KXNA</span>.</p>`;
       return;
@@ -3410,19 +3425,19 @@ const GONOGO_SCENARIOS = [
     opMisconception:'A restriction has to attach to something. If you chose GO with restrictions, name the restriction — there is no reported factor here to hang one on, and a habit of hedging every call is its own kind of miscalibration. If you chose NO-GO, ask what in this report you are refusing on. The real work on a day like this happens at the site, not in the report.',
     misconception:'Reading this as failing the reported minimums suggests you may be treating FEW as a restriction. FEW means one to two eighths of the sky — one of the thinnest coverages there is — and at 12,000 ft it is nowhere near your operating altitude.',
     mission:'A local real-estate agent is paying you to photograph a house listing. Clear schedule, no deadline pressure.',
-    explain:'<b>Reported minimums: MET</b> — 10 SM visibility, the only cloud layer 12,000 ft overhead, 6 kt of wind. Nothing in this report comes near a Part 107 number, and nothing in it touches the classroom SOP either. <b>Operational GO.</b> The interesting part is step 5: because the report constrains nothing, the only thing that can actually decide this flight is what you find at the site — the visibility you can see for yourself, where the clouds really are, and how old this observation has become. Days like this are worth reading carefully anyway. You want to know what "unremarkable" looks like in code, so that anything unusual jumps out at you.'
+    explain:'<b>Reported minimums: MET</b> — 10 SM visibility, the only cloud layer 12,000 ft overhead, 6 kt of wind. Nothing in this report comes near a Part 107 number, and nothing in it touches the classroom SOP either. <b>Operational GO — contingent on satisfactory site verification.</b> The interesting part is step 5: because the report constrains nothing, the only thing that can actually decide this flight is what you find at the site — the visibility you can see for yourself, where the clouds really are, and how old this observation has become. Days like this are worth reading carefully anyway. You want to know what "unremarkable" looks like in code, so that anything unusual jumps out at you.'
   },
   {
     id:'ksfo-fog',
-    metar:'METAR KSFO 150756Z 00000KT 1/2SM BR SCT120 14/13 A3012 RMK AO2',
+    metar:'METAR KSFO 150756Z 00000KT 1/2SM FG SCT120 14/13 A3012 RMK AO2',
     reportedMins:'notmet', operational:'nogo',
     factors:['visibility'], drivers:['regulation'], mitigations:['delay','cancel'],
     sop:[],
-    verifyFocus:'mist is patchy by nature — the half-mile at the airport could be clearer or far worse two miles away, so look rather than assume',
+    verifyFocus:'fog is patchy by nature — the half-mile at the airport could be clearer or far worse two miles away, so look rather than assume',
     opMisconception:'Anything other than NO-GO means the visibility number did not stop you. Half a statute mile is not a condition you fly around: no altitude, no smaller aircraft and no shorter flight turns 1/2 SM into the 3 SM the rule asks for. When the numbers fail, the operational call is already made.',
     misconception:'Reading this as meeting the reported minimums means you missed that 1/2 SM is far below the 3 SM minimum. Fractions in the visibility field are common — read them carefully.',
     mission:'A construction company needs a progress-mapping flight. The project manager drove 90 minutes to be here and the crew is waiting for your data before they can pour concrete.',
-    explain:'<b>Reported minimums: NOT MET</b> — half a statute mile of visibility, far below the § 107.51(c) minimum of 3 SM. Nothing else in the report matters until that changes. <b>Operational NO-GO</b> — the clouds are at 12,000 ft and the air is dead calm, but you cannot see far enough to operate safely. Note the temperature/dew-point spread of 1 °C: this mist is one degree from becoming fog, so conditions are more likely to deteriorate than improve. The project manager\'s schedule does not change the weather. Delay, and say so plainly rather than letting the crew think you are still deciding.'
+    explain:'<b>Reported minimums: NOT MET</b> — half a statute mile of visibility, far below the § 107.51(c) minimum of 3 SM. Nothing else in the report matters until that changes. <b>Operational NO-GO</b> — the clouds are at 12,000 ft and the air is dead calm, but you cannot see far enough to operate safely. Note the temperature/dew-point spread of 1 °C: with the air nearly saturated, conditions may deteriorate further rather than improve. The project manager\'s schedule does not change the weather. Delay, and say so plainly rather than letting the crew think you are still deciding.'
   },
   {
     id:'kord-gusts',
@@ -4294,7 +4309,7 @@ const RATIONALE_RUBRIC = [
       : 'The reported numbers <b>meet</b> the § 107.51 minimums';
     const opText = sc.operational === 'nogo' ? 'my call is <b>Operational NO-GO</b>'
                  : sc.operational === 'go-restricted' ? 'my call is <b>GO with restrictions</b>'
-                 : 'my call is <b>Operational GO</b>';
+                 : 'my call is <b>Operational GO — contingent on satisfactory site verification</b>';
     const driver = nameOf(DECISION_DRIVERS, sc.drivers[0]).toLowerCase();
     const mit    = nameOf(MITIGATIONS, sc.mitigations[0]).toLowerCase();
     const factor = nameOf(LIMIT_FACTORS, sc.factors[0]).toLowerCase();
@@ -4434,7 +4449,7 @@ const EXAM_BANK = [
   {cat:'Temp / Dew', metar:'METAR KROG 141153Z AUTO 00000KT 8SM SCT025 13/12 A3005 RMK AO2',
    q:'What does the 13/12 suggest is likely?',
    choices:['Rapid warming','Fog or a lowering ceiling forming','Thunderstorm development','Nothing in particular'], answer:1,
-   explain:'A temp/dew spread of 1 °C means the air is nearly saturated. A small further drop in temperature — very common around sunrise — condenses that moisture into fog or a low layer.'},
+   explain:'A temp/dew spread of 1 °C means the air is nearly saturated. A small further drop in temperature — very common around sunrise — may condense that moisture into fog or a low layer.'},
 
   {cat:'Temp / Dew', metar:'METAR KXNA 141853Z 19008KT 10SM SKC 39/11 A2984 RMK AO2',
    q:'What is the main performance concern in this report?',
@@ -5086,7 +5101,7 @@ const EXAM_GEN = {
       let explain = `${g.mono(t.code)} is temperature <b>${t.t} °C</b> over dew point <b>${t.d} °C</b>, both in Celsius. The spread is ${show(t.t)} − ${show(t.d)} = <b>${t.spread} °C</b>.`;
       if (t.code.includes('M')) explain += ' The <b>M</b> prefix marks a negative value — there is no minus sign in a METAR.';
       if (t.spread <= 3){
-        explain += ' A spread that small means the air is close to saturated: fog or a lowering layer is likely, and it can arrive fast around sunrise as the temperature falls to meet the dew point. It is the number that tells you a clear morning may not stay that way.';
+        explain += ' A spread that small means the air is close to saturated: fog or a lowering layer may develop, especially around sunrise as the temperature falls toward the dew point. It is the number that tells you a clear morning may not stay that way.';
       } else if (t.spread >= 12){
         explain += ' A wide spread means dry air — condensation is unlikely, so fog and low cloud are not the concern in this report.';
       }
@@ -5102,7 +5117,7 @@ const EXAM_GEN = {
                          skyKind: hot ? g.pick(['clear','high']) : g.pick(['trap','lowceil','noceil'])});
       const t = r.temp;
 
-      const fogAns = 'Fog or a lowering layer forming — the air is nearly saturated';
+      const fogAns = 'Fog or a lowering layer may form — the air is nearly saturated';
       const daAns  = 'High density altitude — thin air means less lift and shorter endurance';
       const correct = hot ? daAns : fogAns;
       const wrongs = [
@@ -5115,7 +5130,7 @@ const EXAM_GEN = {
       if (hot){
         explain = `${g.mono(t.code)} is <b>${t.t} °C</b> with a ${t.spread} °C spread, and the altimeter reads ${g.mono(r.alt.code)} — ${r.alt.inHg} inHg. Hot air is thin air, and thin air is the density-altitude problem: the propellers move less mass per revolution, so expect a slower climb, shorter flight time, and less margin if something goes wrong mid-flight. Nothing here is a § 107.51 minimum — it is a performance question, and it is the classroom SOP and the aircraft documentation that set limits on it.`;
       } else {
-        explain = `${g.mono(t.code)} is <b>${t.t} °C</b> over <b>${t.d} °C</b> — a spread of just ${t.spread} °C, so the air is close to saturated. A small further drop in temperature condenses that moisture: fog, or a layer lowering onto you. Around sunrise the temperature does exactly that, which is why an early launch on numbers like these deserves a second look before you fly and another one at the site.`;
+        explain = `${g.mono(t.code)} is <b>${t.t} °C</b> over <b>${t.d} °C</b> — a spread of just ${t.spread} °C, so the air is close to saturated. A small further drop in temperature may condense that moisture into fog or a lowering layer. Around sunrise the temperature often does exactly that, which is why an early launch on numbers like these deserves a second look before you fly and another one at the site.`;
       }
 
       const set = g.mc(correct, wrongs, ['Thunderstorm development within the hour']);
@@ -5773,7 +5788,7 @@ const EXAM_GEN = {
         {field:'Sky', was:'SCT020 BKN045', now:'FEW025 SCT050', significance:'Layers thinned and lifted — more open sky.'},
         {field:'Altimeter', was:'A2996', now:'A2998', significance:'Slight rise — stable or improving.'}
       ],
-      verdict:'Both reports <b>meet the reported numerical minimums</b>, and the second is better in every dimension: more visibility, less wind, higher and thinner layers. <b>Operational GO</b>, and getting easier. Worth noticing that the earlier report was a GO too — just a more restricted one, since 5 SM in haze clears the number while still calling for a smaller operating area than a clear day would.',
+      verdict:'Both reports <b>meet the reported numerical minimums</b>, and the second is better in every dimension: more visibility, less wind, higher and thinner layers. <b>Operational GO — pending site verification</b>, and getting easier. Worth noticing that the earlier report was a GO too — just a more restricted one, since 5 SM in haze clears the number while still calling for a smaller operating area than a clear day would.',
       question:'What is your operational call on the later report?',
       answer:'go'
     },
@@ -5793,13 +5808,13 @@ const EXAM_GEN = {
     {
       id:'wc-ksfo-fogmist',
       before:'METAR KSFO 150656Z 00000KT 1/2SM FG VV001 13/13 A3012 RMK AO2',
-      after: 'METAR KSFO 150756Z 00000KT 1/2SM BR SCT120 14/13 A3012 RMK AO2',
+      after: 'METAR KSFO 150756Z 00000KT 1SM BR SCT120 14/13 A3012 RMK AO2',
       changes:[
-        {field:'Weather', was:'FG (fog)', now:'BR (mist)', significance:'Fog transitioning to mist — a slight improvement.'},
+        {field:'Weather', was:'FG (fog)', now:'BR (mist)', significance:'Fog has lifted to mist — a genuine improvement in the phenomenon.'},
         {field:'Sky', was:'VV001 (vertical vis 100 ft)', now:'SCT120 (clouds visible at 12,000 ft)', significance:'The sky is no longer obscured — you can see up to actual cloud layers.'},
-        {field:'Visibility', was:'1/2 SM', now:'1/2 SM', significance:'Identical — no change in what you can see horizontally.'}
+        {field:'Visibility', was:'1/2 SM', now:'1 SM', significance:'Doubled, but still well below the 3 SM minimum.'}
       ],
-      verdict:'<b>Neither report meets the reported numerical minimums</b> — 1/2 SM is well below the 3 SM minimum, so both fail on visibility alone. Both are also an <b>operational NO-GO</b>. The fog-to-mist transition is a genuine sign that conditions may eventually improve, but the visibility itself has not moved. This pair teaches that a trend can look encouraging while the numbers still say no.',
+      verdict:'<b>Neither report meets the reported numerical minimums</b> — even the improved 1 SM is well below the 3 SM minimum, so both fail on visibility alone. Both are also an <b>operational NO-GO</b>. The fog-to-mist transition and doubled visibility are genuine signs that conditions are improving, but the numbers still say no. This pair teaches that a trend can look encouraging while the regulatory threshold remains out of reach.',
       question:'What is your operational call on the later report?',
       answer:'nogo'
     }
