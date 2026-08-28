@@ -21,6 +21,7 @@ STEPS = [
     ("generated exam items",           ["node", "regress_examgen.js"]),
     ("concept routing",                ["node", "regress_concepts.js"]),
     ("element references",             ["node", "refcheck.js"]),
+    ("TAF parser",                     ["node", "regress_taf.js"]),
 ]
 
 def main():

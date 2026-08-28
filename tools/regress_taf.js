@@ -478,182 +478,183 @@ console.log('Section 3: Flight window queries (conditionsDuring)\n');
 }
 
 // ============================================================================
-// Section 4: Cross-midnight arithmetic fuzzer
+// Section 4: Full-spectrum fuzzer (FM, BECMG, TEMPO, PROB, weather, temps)
 // ============================================================================
 
-console.log('Section 4: Cross-midnight arithmetic fuzzer\n');
+console.log('Section 4: Full-spectrum fuzzer\n');
+
+const { generateTAF: genTAF, toMinutes: genToMinutes } = require('./taf_gen');
 
 const FUZZ_COUNT = +(process.argv[2] || 1000);
 let fuzzFails = 0;
 
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-
-const SKY_COVERS = ['FEW', 'SCT', 'BKN', 'OVC'];
-const SKY_ORDER = { FEW: 0, SCT: 1, BKN: 2, OVC: 3 };
-
-function randomSkyGroup() {
-  const count = randInt(1, 3);
-  const layers = [];
-  let minFt = randInt(5, 100) * 100;
-  let prevCov = 0;
-  for (let i = 0; i < count; i++) {
-    const covIdx = randInt(prevCov, 3);
-    const cov = SKY_COVERS[covIdx];
-    const ft = minFt + randInt(0, 20) * 100;
-    layers.push(cov + String(ft / 100).padStart(3, '0'));
-    minFt = ft + randInt(5, 30) * 100;
-    prevCov = covIdx;
+function fuzzAssert(cond, f, msg, tafStr) {
+  if (!cond) {
+    console.log(`  FUZZ FAIL #${f}: ${msg}`);
+    if (tafStr) console.log(`    TAF: ${tafStr}`);
+    fuzzFails++;
+    return false;
   }
-  return layers.join(' ');
-}
-
-function randomWind() {
-  const dir = String(randInt(1, 36) * 10).padStart(3, '0');
-  const speed = String(randInt(3, 30)).padStart(2, '0');
-  const gust = Math.random() > 0.5 ? 'G' + String(randInt(parseInt(speed) + 5, 50)).padStart(2, '0') : '';
-  return dir + speed + gust + 'KT';
-}
-
-function randomVis() {
-  const vis = [
-    '1/4SM', '1/2SM', '3/4SM', '1SM', '1 1/2SM', '2SM', '3SM', '4SM', '5SM', '6SM', 'P6SM'
-  ];
-  return vis[randInt(0, vis.length - 1)];
+  return true;
 }
 
 for (let f = 0; f < FUZZ_COUNT; f++) {
-  // Generate a random TAF with cross-midnight potential
-  const startDay = randInt(1, 30);
-  const startHour = randInt(0, 23);
-  const durationHours = randInt(18, 30);
-  const endHour = (startHour + durationHours) % 24;
-  const endDay = startDay + Math.floor((startHour + durationHours) / 24);
-  const actualEndDay = endDay > 31 ? endDay - 31 : endDay;
-
-  const issueDay = startDay;
-  const issueHour = startHour > 0 ? startHour - 1 : 23;
-  const issueMin = 30;
-
-  const station = 'K' + String.fromCharCode(65 + randInt(0, 25)) +
-    String.fromCharCode(65 + randInt(0, 25)) + String.fromCharCode(65 + randInt(0, 25));
-
-  const validity = String(startDay).padStart(2, '0') + String(startHour).padStart(2, '0') + '/' +
-    String(actualEndDay).padStart(2, '0') + String(endHour).padStart(2, '0');
-  const issued = String(issueDay).padStart(2, '0') + String(issueHour).padStart(2, '0') +
-    String(issueMin).padStart(2, '0') + 'Z';
-
-  // Build 1-3 FM groups at random hours within validity
-  const fmCount = randInt(0, 3);
-  const fmHours = [];
-  let currentDay = startDay;
-  let currentHour = startHour + randInt(3, 8);
-  for (let g = 0; g < fmCount; g++) {
-    if (currentHour >= 24) {
-      currentDay += Math.floor(currentHour / 24);
-      currentHour = currentHour % 24;
-    }
-    if (currentDay > 31) currentDay -= 31;
-
-    // Check we haven't gone past the end
-    const fmMin = toMinutes(currentDay, currentHour, 0, startDay);
-    const endMin = toMinutes(actualEndDay, endHour, 0, startDay);
-    if (fmMin >= endMin - 60) break;
-
-    fmHours.push({ day: currentDay, hour: currentHour });
-    currentHour += randInt(3, 8);
-  }
-
-  let tafStr = `TAF ${station} ${issued} ${validity} ${randomWind()} ${randomVis()} ${randomSkyGroup()}`;
-  for (const fm of fmHours) {
-    const fmTime = String(fm.day).padStart(2, '0') + String(fm.hour).padStart(2, '0') + '00';
-    tafStr += ` FM${fmTime} ${randomWind()} ${randomVis()} ${randomSkyGroup()}`;
-  }
-
+  const { tafString: tafStr, truth } = genTAF();
   const taf = parseTAF(tafStr);
 
-  // Assertions
-  if (taf.error) {
-    console.log(`  FUZZ FAIL #${f}: parse error on: ${tafStr}`);
-    console.log(`    error: ${taf.error}`);
-    fuzzFails++;
-    continue;
-  }
+  if (!fuzzAssert(!taf.error, f, `parse error: ${taf.error}`, tafStr)) continue;
+
+  // Station must match
+  fuzzAssert(taf.station === truth.station, f,
+    `station: expected ${truth.station}, got ${taf.station}`, tafStr);
+
+  // Amendment must match
+  fuzzAssert(taf.amendment === truth.amendment, f,
+    `amendment: expected ${truth.amendment}, got ${taf.amendment}`, tafStr);
+
+  // Validity must match
+  fuzzAssert(taf.validity.startDay === truth.validity.startDay, f,
+    `validity.startDay: expected ${truth.validity.startDay}, got ${taf.validity.startDay}`, tafStr);
+  fuzzAssert(taf.validity.startHour === truth.validity.startHour, f,
+    `validity.startHour: expected ${truth.validity.startHour}, got ${taf.validity.startHour}`, tafStr);
+  fuzzAssert(taf.validity.endDay === truth.validity.endDay, f,
+    `validity.endDay: expected ${truth.validity.endDay}, got ${taf.validity.endDay}`, tafStr);
+  fuzzAssert(taf.validity.endHour === truth.validity.endHour, f,
+    `validity.endHour: expected ${truth.validity.endHour}, got ${taf.validity.endHour}`, tafStr);
+
+  // Must have at least as many periods as FM count + 1 (initial)
+  fuzzAssert(taf.periods.length >= truth.fmCount + 1, f,
+    `period count: expected >= ${truth.fmCount + 1}, got ${taf.periods.length}`, tafStr);
+
+  // First period must be INITIAL
+  fuzzAssert(taf.periods[0].type === 'INITIAL', f,
+    `first period type: expected INITIAL, got ${taf.periods[0].type}`, tafStr);
+
+  // FM/INITIAL structural checks
+  const fmPeriods = taf.periods.filter(p => p.type === 'INITIAL' || p.type === 'FM');
+  const refDay = truth.validity.startDay;
 
   // Every FM/INITIAL period must have an end time
-  const fmPeriods = taf.periods.filter(p => p.type === 'INITIAL' || p.type === 'FM');
   for (const p of fmPeriods) {
-    if (p.endDay === null || p.endHour === null) {
-      console.log(`  FUZZ FAIL #${f}: ${p.type} period missing end time`);
-      fuzzFails++;
-    }
+    fuzzAssert(p.endDay !== null && p.endHour !== null, f,
+      `${p.type} period missing end time`, tafStr);
   }
 
-  // Periods must be in chronological order (FM/INITIAL only)
+  // FM/INITIAL periods must be in chronological order
   for (let j = 1; j < fmPeriods.length; j++) {
     const prevStart = toMinutes(fmPeriods[j - 1].startDay, fmPeriods[j - 1].startHour,
-      fmPeriods[j - 1].startMin || 0, startDay);
+      fmPeriods[j - 1].startMin || 0, refDay);
     const currStart = toMinutes(fmPeriods[j].startDay, fmPeriods[j].startHour,
-      fmPeriods[j].startMin || 0, startDay);
-    if (currStart <= prevStart) {
-      console.log(`  FUZZ FAIL #${f}: FM periods out of order at index ${j}`);
-      console.log(`    TAF: ${tafStr}`);
-      fuzzFails++;
-    }
+      fmPeriods[j].startMin || 0, refDay);
+    fuzzAssert(currStart > prevStart, f,
+      `FM periods out of order at index ${j}`, tafStr);
   }
 
-  // No gaps: each FM period's end must equal the next FM period's start
+  // No gaps between consecutive FM/INITIAL periods
   for (let j = 0; j < fmPeriods.length - 1; j++) {
-    const thisEnd = toMinutes(fmPeriods[j].endDay, fmPeriods[j].endHour, 0, startDay);
+    if (fmPeriods[j].endDay === null) continue;
+    const thisEnd = toMinutes(fmPeriods[j].endDay, fmPeriods[j].endHour,
+      fmPeriods[j].endMin || 0, refDay);
     const nextStart = toMinutes(fmPeriods[j + 1].startDay, fmPeriods[j + 1].startHour,
-      fmPeriods[j + 1].startMin || 0, startDay);
-    if (thisEnd !== nextStart) {
-      console.log(`  FUZZ FAIL #${f}: gap between FM[${j}] end and FM[${j + 1}] start`);
-      console.log(`    end=${thisEnd}min, nextStart=${nextStart}min`);
-      console.log(`    TAF: ${tafStr}`);
-      fuzzFails++;
+      fmPeriods[j + 1].startMin || 0, refDay);
+    fuzzAssert(thisEnd === nextStart, f,
+      `gap between FM[${j}] end (${thisEnd}min) and FM[${j + 1}] start (${nextStart}min)`, tafStr);
+  }
+
+  // No negative-duration FM/INITIAL periods
+  for (const p of fmPeriods) {
+    if (p.endDay === null) continue;
+    const pStart = toMinutes(p.startDay, p.startHour, p.startMin || 0, refDay);
+    const pEnd = toMinutes(p.endDay, p.endHour, p.endMin || 0, refDay);
+    fuzzAssert(pEnd > pStart, f,
+      `negative or zero duration for ${p.type} (start=${pStart}, end=${pEnd})`, tafStr);
+  }
+
+  // Overlay periods must have valid time windows
+  const overlays = taf.periods.filter(p =>
+    p.type === 'BECMG' || p.type === 'TEMPO' || p.type === 'PROB');
+  for (const ov of overlays) {
+    fuzzAssert(ov.startDay !== null && ov.startHour !== null, f,
+      `${ov.type} overlay missing start time`, tafStr);
+    fuzzAssert(ov.endDay !== null && ov.endHour !== null, f,
+      `${ov.type} overlay missing end time`, tafStr);
+    if (ov.endDay !== null) {
+      const ovStart = toMinutes(ov.startDay, ov.startHour, 0, refDay);
+      const ovEnd = toMinutes(ov.endDay, ov.endHour, 0, refDay);
+      fuzzAssert(ovEnd > ovStart, f,
+        `${ov.type} overlay has non-positive duration (start=${ovStart}, end=${ovEnd})`, tafStr);
+    }
+    if (ov.prob) {
+      fuzzAssert(ov.prob === 30 || ov.prob === 40, f,
+        `bad prob value: ${ov.prob}`, tafStr);
     }
   }
 
-  // No negative-duration periods
-  for (const p of fmPeriods) {
-    const pStart = toMinutes(p.startDay, p.startHour, p.startMin || 0, startDay);
-    const pEnd = toMinutes(p.endDay, p.endHour, 0, startDay);
-    if (pEnd <= pStart) {
-      console.log(`  FUZZ FAIL #${f}: negative or zero duration for ${p.type}`);
-      console.log(`    start=${pStart}min, end=${pEnd}min`);
-      console.log(`    TAF: ${tafStr}`);
-      fuzzFails++;
+  // Every period must have a meta object with wind/vis/sky decoded
+  for (let pi = 0; pi < taf.periods.length; pi++) {
+    const p = taf.periods[pi];
+    fuzzAssert(p.meta !== undefined && p.meta !== null, f,
+      `period[${pi}] (${p.type}) missing meta`, tafStr);
+    if (p.meta) {
+      fuzzAssert(p.meta.windSpeedKt !== undefined, f,
+        `period[${pi}] missing windSpeedKt`, tafStr);
+      fuzzAssert(p.meta.visibilityMiles !== undefined, f,
+        `period[${pi}] missing visibilityMiles`, tafStr);
+      fuzzAssert(Array.isArray(p.meta.layers), f,
+        `period[${pi}] layers is not an array`, tafStr);
     }
   }
+
+  // Verify meta fields match the generator's truth for the initial period
+  const im = taf.periods[0].meta;
+  const it = truth.periods[0].meta;
+  fuzzAssert(im.windSpeedKt === it.windSpeedKt, f,
+    `initial windSpeedKt: expected ${it.windSpeedKt}, got ${im.windSpeedKt}`, tafStr);
+  fuzzAssert(im.windGustKt === it.windGustKt, f,
+    `initial windGustKt: expected ${it.windGustKt}, got ${im.windGustKt}`, tafStr);
+  if (it.visibilityOp) {
+    fuzzAssert(im.visibilityOp === it.visibilityOp, f,
+      `initial visOp: expected "${it.visibilityOp}", got "${im.visibilityOp}"`, tafStr);
+  }
+  fuzzAssert(Math.abs((im.visibilityMiles || 0) - it.visibilityMiles) < 0.1, f,
+    `initial visMiles: expected ${it.visibilityMiles}, got ${im.visibilityMiles}`, tafStr);
+  fuzzAssert(im.hasThunderstorm === it.hasThunderstorm, f,
+    `initial hasThunderstorm: expected ${it.hasThunderstorm}, got ${im.hasThunderstorm}`, tafStr);
+  fuzzAssert(im.hasPrecip === it.hasPrecip, f,
+    `initial hasPrecip: expected ${it.hasPrecip}, got ${im.hasPrecip}`, tafStr);
+  fuzzAssert(im.hasObscuration === it.hasObscuration, f,
+    `initial hasObscuration: expected ${it.hasObscuration}, got ${im.hasObscuration}`, tafStr);
 
   // conditionsAt must return a result for every hour in the validity
-  let checkDay = startDay;
-  let checkHour = startHour;
-  const totalHours = durationHours;
-  for (let h = 0; h < totalHours; h++) {
-    let qDay = checkDay + Math.floor((checkHour + h) / 24);
-    let qHour = (checkHour + h) % 24;
+  const valStart = toMinutes(truth.validity.startDay, truth.validity.startHour, 0, refDay);
+  const valEnd = toMinutes(truth.validity.endDay, truth.validity.endHour, 0, refDay);
+  const totalHours = Math.floor((valEnd - valStart) / 60);
+  let condFail = false;
+  for (let h = 0; h < totalHours && !condFail; h++) {
+    let qDay = truth.validity.startDay;
+    let qHour = truth.validity.startHour + h;
+    while (qHour >= 24) { qHour -= 24; qDay++; }
     if (qDay > 31) qDay -= 31;
 
     const c = conditionsAt(taf, qHour, qDay);
-    if (!c) {
-      console.log(`  FUZZ FAIL #${f}: conditionsAt returned null for ${qDay}/${qHour}Z`);
-      console.log(`    validity: ${validity}`);
-      console.log(`    TAF: ${tafStr}`);
-      fuzzFails++;
-      break;
-    }
-    if (!c.base) {
-      console.log(`  FUZZ FAIL #${f}: conditionsAt returned no base for ${qDay}/${qHour}Z`);
-      fuzzFails++;
-      break;
-    }
+    if (!fuzzAssert(c !== null, f,
+      `conditionsAt returned null for ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
+    if (!fuzzAssert(c.base !== null, f,
+      `conditionsAt returned no base for ${qDay}/${qHour}Z`, tafStr)) { condFail = true; break; }
+    fuzzAssert(c.base.meta.windSpeedKt !== undefined, f,
+      `conditionsAt base at ${qDay}/${qHour}Z missing windSpeedKt`, tafStr);
   }
+
+  // conditionsDuring over the full validity must return at least one period
+  const dur = conditionsDuring(taf, truth.validity.startDay, truth.validity.startHour,
+    truth.validity.endDay, truth.validity.endHour);
+  fuzzAssert(dur.length >= 1, f,
+    `conditionsDuring over full validity returned ${dur.length} periods`, tafStr);
 }
 
 fails += fuzzFails;
-console.log(`  ${FUZZ_COUNT} random TAFs generated and checked.`);
-console.log(`  Cross-midnight fuzz: ${fuzzFails === 0 ? 'all passed' : fuzzFails + ' FAILURE(S)'}.\n`);
+console.log(`  ${FUZZ_COUNT} random TAFs (FM + BECMG + TEMPO + PROB) generated and checked.`);
+console.log(`  Full-spectrum fuzz: ${fuzzFails === 0 ? 'all passed' : fuzzFails + ' FAILURE(S)'}.\n`);
 
 // ============================================================================
 // Section 5: Error-case tests

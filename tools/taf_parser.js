@@ -381,6 +381,7 @@ function parseTAF(rawInput) {
     startMin: 0,
     endDay: null,
     endHour: null,
+    endMin: 0,
     prob: null,
     meta: initialMeta,
     raw: initialToks.join(' ')
@@ -401,6 +402,7 @@ function parseTAF(rawInput) {
       startMin: mk.cg.startMin || 0,
       endDay: mk.cg.endDay,
       endHour: mk.cg.endHour,
+      endMin: 0,
       prob: mk.cg.prob,
       meta,
       raw: mk.cg.raw + (bodyToks.length ? ' ' + bodyToks.join(' ') : '')
@@ -408,16 +410,19 @@ function parseTAF(rawInput) {
   }
 
   // Fill in end times for FM and INITIAL periods (they end when the next FM
-  // starts, or at the TAF validity end)
+  // starts, or at the TAF validity end). FM groups can start at non-zero
+  // minutes (FM141820 = 18:20), so endMin must capture that.
   const fmPeriods = periods.filter(p => p.type === 'INITIAL' || p.type === 'FM');
   for (let f = 0; f < fmPeriods.length; f++) {
     if (fmPeriods[f].endDay === null) {
       if (f + 1 < fmPeriods.length) {
         fmPeriods[f].endDay = fmPeriods[f + 1].startDay;
         fmPeriods[f].endHour = fmPeriods[f + 1].startHour;
+        fmPeriods[f].endMin = fmPeriods[f + 1].startMin || 0;
       } else {
         fmPeriods[f].endDay = result.validity.endDay;
         fmPeriods[f].endHour = result.validity.endHour;
+        fmPeriods[f].endMin = 0;
       }
     }
   }
@@ -487,7 +492,7 @@ function conditionsDuring(taf, startDay, startHour, endDay, endHour) {
     const pStart = toMinutes(p.startDay, p.startHour, p.startMin || 0, refDay);
     let pEnd;
     if (p.endDay !== null && p.endHour !== null) {
-      pEnd = toMinutes(p.endDay, p.endHour, 0, refDay);
+      pEnd = toMinutes(p.endDay, p.endHour, p.endMin || 0, refDay);
     } else {
       // Use validity end as fallback
       pEnd = toMinutes(taf.validity.endDay, taf.validity.endHour, 0, refDay);
