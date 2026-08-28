@@ -682,10 +682,11 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
 @media print{
   *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
   body{background:#fff; color:#111;}
-  #topnav, header.masthead, footer{display:none !important;}
+  #topnav, header.masthead, footer, .skip-link{display:none !important;}
   /* The dashboard is a <div>, not a <section>, so it needs its own rule or it
      prints above the study card. */
   .dashboard{display:none !important;}
+  main{display:block !important; padding:0; margin:0;}
   section:not(#cheatsheet){display:none !important;}
   #cheatsheet{display:block !important; border:none; padding:0;}
   #cheatsheet .no-print{display:none !important;}
@@ -2173,9 +2174,8 @@ function verifyPromptHtml(focus){
 function reportedMinimumsStatus(meta){
   const fails = [];
   let unknown = false;
-  if (meta.hasUnparsedPreRmk){
-    unknown = true;
-  } else if (meta.visibilityMiles === null){
+  if (meta.hasUnparsedPreRmk) unknown = true;
+  if (meta.visibilityMiles === null){
     unknown = true;
   } else if (meta.visibilityOp === 'less than' || meta.visibilityMiles < 3){
     fails.push('the reported visibility is below 3 SM');
@@ -2574,19 +2574,23 @@ function parseMETAR(rawInput){
     fields.push({type:'sky', raw, label:'Sky Condition', html, sub:skyGroup});
   }
 
-  if (tokens[i] && /^M?\d{2}\/M?\d{2}$/.test(tokens[i])){
+  if (tokens[i] && /^M?\d{2}\/(M?\d{2})?$/.test(tokens[i])){
     const t = tokens[i];
     const [tRaw, dRaw] = t.split('/');
     const temp = (tRaw[0]==='M' ? -1 : 1) * parseInt(tRaw.replace('M',''),10);
-    const dew = (dRaw[0]==='M' ? -1 : 1) * parseInt(dRaw.replace('M',''),10);
-    const spread = temp - dew;
+    const hasDew = dRaw.length > 0;
+    const dew = hasDew ? (dRaw[0]==='M' ? -1 : 1) * parseInt(dRaw.replace('M',''),10) : null;
+    const spread = hasDew ? temp - dew : null;
     meta.spread = spread;
     meta.tempC = temp;
+    const dewHtml = hasDew
+      ? `<p><b>${t}</b> — Temperature <b>${temp}°C</b>, dew point <b>${dew}°C</b>. Both in Celsius; an "M" prefix means negative.</p>`
+      : `<p><b>${t}</b> — Temperature <b>${temp}°C</b>, dew point <b>not available</b>. The empty position after the solidus means the sensor could not determine a dew point.</p>`;
     fields.push({type:'temp', raw:t, label:'Temperature / Dew Point',
-      html:`<p><b>${t}</b> — Temperature <b>${temp}°C</b>, dew point <b>${dew}°C</b>. Both in Celsius; an "M" prefix means negative.</p>` +
-        (spread<=3
+      html:dewHtml +
+        (spread!==null && spread<=3
           ? `<p class="tip">Spread is only ${spread}°C — the air is close to saturated. Fog or a lowering ceiling may develop, especially around sunrise as the temperature falls toward the dew point.</p>`
-          : `<p>Spread of ${spread}°C.</p>`) +
+          : spread!==null ? `<p>Spread of ${spread}°C.</p>` : '') +
         (temp>=30
           ? `<p class="tip">At ${temp}°C the air is thin. High density altitude means less lift per propeller revolution: expect a slower climb, shorter endurance, and less margin if something goes wrong.` +
             (temp >= CLASS_SOP.hotWxTempC ? ` That is at or above the <b>${CLASS_SOP.hotWxTempC}°C</b> hot-weather threshold in the ${CLASS_SOP.name} — plan a shorter flight and land with a larger battery reserve. (Classroom limit, not a manufacturer figure.)` : '') +
@@ -4447,8 +4451,8 @@ const EXAM_BANK = [
    explain:'The observation is taken near the end of the hour so it can be encoded and distributed in time to represent the new hour. It also means the report you are reading may already be nearly an hour old.'},
 
   {cat:'Temp / Dew', metar:'METAR KROG 141153Z AUTO 00000KT 8SM SCT025 13/12 A3005 RMK AO2',
-   q:'What does the 13/12 suggest is likely?',
-   choices:['Rapid warming','Fog or a lowering ceiling forming','Thunderstorm development','Nothing in particular'], answer:1,
+   q:'What risk does the 13/12 spread raise?',
+   choices:['Rapid warming','Fog or a lowering ceiling may develop','Thunderstorm development','Nothing in particular'], answer:1,
    explain:'A temp/dew spread of 1 °C means the air is nearly saturated. A small further drop in temperature — very common around sunrise — may condense that moisture into fog or a low layer.'},
 
   {cat:'Temp / Dew', metar:'METAR KXNA 141853Z 19008KT 10SM SKC 39/11 A2984 RMK AO2',

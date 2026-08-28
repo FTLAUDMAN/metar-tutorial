@@ -66,7 +66,7 @@ Key assertions — treat a change in any of these as a regression:
 - `modules.coldReadTokens` **must be 0** (the final walkthrough is deliberately scaffold-free)
 - `gng.fullChecklistsInSection` **must be 1** (the seven site checks appear once, not once per card)
 - `a11y.unlabelledControls` **must be 0**
-- `printSurvivors` **must be `['cheatsheet']`**
+- `printSurvivors` **must be `['main-content']`**
 - `horizontalOverflow` **must be false**; `landsAtTop` **must be true**
 - `runtimeErrors` **must be `[]`**
 - `sectionNumbers` **must be `01,…,12` in order**

@@ -290,8 +290,9 @@ const OVERFLOW_SCAN = `(() => {
       return {inked: rows.filter(r => r.w > 0 && r.h > 0).map(r => r.who),
               blank: rows.filter(r => r.w === 0 || r.h === 0).map(r => r.who)};
     })()`);
-    if (JSON.stringify(results.printLayout.inked) !== JSON.stringify(['cheatsheet']))
-      problems.push('print layout: ' + JSON.stringify(results.printLayout.inked) + ' occupy space, expected only ["cheatsheet"]');
+    const expectedInked = ['main-content'];
+    if (JSON.stringify(results.printLayout.inked) !== JSON.stringify(expectedInked))
+      problems.push('print layout: ' + JSON.stringify(results.printLayout.inked) + ' occupy space, expected only ' + JSON.stringify(expectedInked));
 
     const full = await cdp.evaluate(`(() => {
       const el = document.getElementById('cheatsheet');
@@ -319,8 +320,9 @@ const OVERFLOW_SCAN = `(() => {
           !hiders.some(h => { try { return el.matches(h); } catch (e) { return false; } }))
         .map(el => el.id || el.tagName);
     })()`);
-    if (JSON.stringify(results.printSurvivors) !== JSON.stringify(['cheatsheet']))
-      problems.push('print: survivors are ' + JSON.stringify(results.printSurvivors) + ', expected ["cheatsheet"]');
+    const expectedSurvivors = ['main-content'];
+    if (JSON.stringify(results.printSurvivors) !== JSON.stringify(expectedSurvivors))
+      problems.push('print: survivors are ' + JSON.stringify(results.printSurvivors) + ', expected ' + JSON.stringify(expectedSurvivors));
 
     results.outputDir = OUT;
     results.browser = BIN;

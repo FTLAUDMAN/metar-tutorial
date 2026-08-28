@@ -112,7 +112,7 @@
   out.printSurvivors = [...document.body.children]
     .filter(el => el.tagName !== 'SCRIPT' &&
       !hiders.some(h => { try { return el.matches(h); } catch (e) { return false; } }))
-    .map(el => el.id || el.tagName);                                 // MUST be ['cheatsheet']
+    .map(el => el.id || el.tagName);                                 // MUST be ['main-content']
 
   /* ---- 8. spaced practice and the next-action panel --------------------- */
   /* The recommendation is the dashboard's only instruction, so the thing that
