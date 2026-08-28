@@ -68,6 +68,8 @@ Key assertions — treat a change in any of these as a regression:
 - `a11y.unlabelledControls` **must be 0**
 - `printSurvivors` **must be `['main-content']`**
 - `horizontalOverflow` **must be false**; `landsAtTop` **must be true**
+- `parser.missingDew` **must be `ok`** (dew-point-absent format `02/` parses cleanly)
+- `parser.elseIfGuard` **must be `ok`** (known visibility failure returns NOT MET even with unparsed tokens)
 - `runtimeErrors` **must be `[]`**
 - `sectionNumbers` **must be `01,…,12` in order**
 - `nextAction.hiddenForFreshVisitor` **must be true** — the recommendation panel

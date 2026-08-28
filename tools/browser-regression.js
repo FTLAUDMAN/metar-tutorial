@@ -51,7 +51,12 @@
   out.parser = {
     variableRVR: probe('METAR KXNA 241853Z VRB03KT 1/4SM R18/0600V1000FT FG VV002 12/12 A2992 RMK AO2'),
     icaoMetric:  probe('METAR EGLL 241850Z 25012KT 9999 SCT030 14/09 Q1013 NOSIG'),
-    usStandard:  probe('METAR KGGG 161753Z AUTO 14021G26KT 3/4SM +TSRA BR BKN008 OVC012CB 18/17 A2970 RMK AO2 PRESFR')
+    usStandard:  probe('METAR KGGG 161753Z AUTO 14021G26KT 3/4SM +TSRA BR BKN008 OVC012CB 18/17 A2970 RMK AO2 PRESFR'),
+    missingDew:  probe('METAR KXYZ 281655Z 24008KT 10SM SCT250 02/ A3016 RMK AO2'),
+    elseIfGuard: (() => {
+      const m = parseMETAR('METAR KXYZ 281655Z 24008KT 1/2SM FOO BKN010 18/12 A3016 RMK AO2');
+      return m.meta.hasUnparsedPreRmk && reportedMinimumsStatus(m.meta).label.includes('NOT MET') ? 'ok' : 'WRONG';
+    })()
   };
 
   /* ---- 3. dashboard empty state (fresh visitor) ------------------------ */

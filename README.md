@@ -26,7 +26,7 @@ Three things worth knowing:
   practice METAR instead of live weather. This is expected and everything still
   works — see section D if you want live data.
 - **Printing gives you the cheat sheet only.** Ctrl/Cmd+P produces a clean
-  two-page kneeboard reference, not the whole tutorial.
+  multi-page kneeboard reference, not the whole tutorial.
 
 To hand it to students, copy that one file. Email it, drop it on a shared drive,
 or put it on the school network — it has no dependencies.
@@ -41,7 +41,7 @@ From this folder:
 python tools/check.py
 ```
 
-Expect six `ok` lines and `All static checks passed.` If Python or Node are
+Expect eight `ok` lines and `All static checks passed.` If Python or Node are
 missing, see section C.
 
 You can also confirm the files transferred intact:
@@ -76,7 +76,7 @@ node --version
 ### Then read, in this order
 
 1. **`HANDOFF.md`** — written for whoever picks this up next, assuming no prior
-   context. Its section 2 ("Editorial doctrine") lists nine distinctions the
+   context. Its section 2 ("Editorial doctrine") lists ten distinctions the
    whole page is built around; breaking one of those is the easiest way to do
    real damage. Section 5 lists the remaining work in priority order.
 2. **`tools/README.md`** — how to verify changes, and four gotchas that will

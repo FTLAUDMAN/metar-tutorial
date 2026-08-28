@@ -171,7 +171,7 @@ its own location, so the folder can be moved or renamed (override with the
 
 | Script | Catches |
 |---|---|
-| `check.py` | Runner for all six static checks |
+| `check.py` | Runner for all eight static checks |
 | `extract.py` | Pulls the JS out; scans for **duplicate HTML IDs** |
 | `validate.js` | Bad scenario factor/driver/mitigation/SOP ids; out-of-range exam answer indexes; removed fields; **`${...}` stranded in single-quoted strings** (renders literally to students) |
 | `regress.js` | Every Go/No-Go scenario's authored verdict vs what `reportedMinimumsStatus()` computes, and vs `CLASS_SOP` — catches prose and data drifting apart |
@@ -416,7 +416,7 @@ is written to disk until `done()`.
   CORS headers — the `file://` error message remains accurate.
 - ~~Print output verified by CSS rule analysis, not a rendered PDF.~~
   **Closed.** `tools/render-check.js` now renders the page in print media and
-  checks which elements still occupy space (only `cheatsheet`), and prints to
+  checks which elements still occupy space (only `main-content`), and prints to
   PDF — 4 pages, colour coding intact, `break-inside: avoid` keeping cards
   whole across page breaks. Artifacts land in `tools/render-out/`.
 - **Mojibake is invisible to every checker here.** Two `.pill-btn` `::after`
