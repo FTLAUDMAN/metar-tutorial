@@ -131,6 +131,14 @@ header.masthead .title-block h1{
   font-size:1.5rem; margin:0; color:var(--gold-bright); letter-spacing:.02em;
 }
 header.masthead .title-block p{margin:2px 0 0; color:var(--text-dim); font-size:.9rem;}
+header.masthead .cross-link{
+  margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+  font-size:.8rem; color:var(--gold-bright); border:1px solid var(--border-strong);
+  padding:6px 14px; border-radius:20px; text-decoration:none; white-space:nowrap;
+}
+header.masthead .cross-link:hover, header.masthead .cross-link:focus-visible{
+  border-color:var(--gold); background:#00000030;
+}
 
 .hero{
   position:relative;
@@ -982,6 +990,7 @@ abbr[title]{text-decoration:underline dotted var(--gold-dim); cursor:help;}
       <h1>METAR Flight Briefing Trainer</h1>
       <p>Bentonville West Wolverines UAS Program</p>
     </div>
+    <a class="cross-link" href="https://taf-tutorial.pages.dev" target="_blank" rel="noopener noreferrer">TAF Tutorial ↗</a>
   </div>
 </header>
 

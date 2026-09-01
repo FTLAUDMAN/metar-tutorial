@@ -443,3 +443,16 @@ is written to disk until `done()`.
 - The section-order change (hero above the live report) is a single contiguous
   block move and is trivially reversible if the teacher prefers the live report
   first.
+- **The masthead's new cross-link to `https://taf-tutorial.pages.dev` (added
+  alongside the TAF sister project's Phase 10) is a placeholder until that
+  page is actually deployed under that project name.** It was confirmed as
+  the plan, not an existing deployment, when the link was added. The TAF
+  project's own `HANDOFF.md` documents the same caveat on its side. This
+  project's own live URL (`https://metar-tutorial.pages.dev`) is real and
+  already confirmed working — only the outbound link is unverified.
+  `browser-regression.js` was re-run after this change (clean: 0 runtime
+  errors, `printSurvivors: ["main-content"]`, all module counts unchanged),
+  along with `browser-cloud-fuzz.js` and `browser-exam-fuzz.js` (both
+  2,000/2,000, 0 mismatches) — the masthead is outside `@media print`'s
+  surviving content and outside every drill, so none of this was expected
+  to move, and none of it did.
